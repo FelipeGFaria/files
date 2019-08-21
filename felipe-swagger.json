@@ -1,0 +1,286 @@
+{
+  "apiVersion": "v1",
+  "swaggerVersion": "1.2",
+  "resourcePath": "/issues",
+  "produces": [
+    "application/json; charset=UTF-8"
+  ],
+  "apis": [
+    {
+      "path": "/v1/issues",
+      "operations": [
+        {
+          "notes": "<p>Utilize este método para listar as pendências associadas à sua conta na Vindi. Leia a documentação sobre <a href=\"http://atendimento.vindi.com.br/hc/pt-br/articles/203020644#pagination\">paginação</a> e <a href=\"http://atendimento.vindi.com.br/hc/pt-br/articles/204163150\">filtros de busca</a>.</p>\n\n<h4 id=\"atributos-para-busca\">Atributos para busca</h4>\n<p><code>id</code>, <code>status</code>, <code>item_id</code>, <code>item_type</code>, <code>issue_type</code>, <code>customer_id</code>, <code>created_at</code> e <code>updated_at</code>.</p>\n\n",
+          "summary": "Retorna uma lista de pendências.",
+          "nickname": "GET--version-issues---format-",
+          "method": "GET",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "page",
+              "description": "<p>Page of results to fetch.</p>\n",
+              "type": "integer",
+              "required": false,
+              "allowMultiple": false,
+              "format": "int32",
+              "defaultValue": 1
+            },
+            {
+              "paramType": "query",
+              "name": "per_page",
+              "description": "<p>Number of results to return per page.</p>\n",
+              "type": "integer",
+              "required": false,
+              "allowMultiple": false,
+              "format": "int32"
+            },
+            {
+              "paramType": "query",
+              "name": "query",
+              "description": "<p>Filtro para busca</p>\n",
+              "type": "string",
+              "required": false,
+              "allowMultiple": false
+            },
+            {
+              "paramType": "query",
+              "name": "sort_by",
+              "description": "<p>Atributo opcional para ordenação</p>\n",
+              "type": "string",
+              "required": false,
+              "allowMultiple": false,
+              "defaultValue": "id",
+              "enum": [
+                "id",
+                "status",
+                "item_id",
+                "item_type",
+                "issue_type",
+                "customer_id",
+                "created_at",
+                "updated_at"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "sort_order",
+              "description": "<p>Sentido opcional para ordenação</p>\n",
+              "type": "string",
+              "required": false,
+              "allowMultiple": false,
+              "defaultValue": "asc",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          ],
+          "type": "Issue",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Consulta realizada com sucesso."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/v1/issues/{id}",
+      "operations": [
+        {
+          "notes": "",
+          "summary": "Retorna uma pendência específica através do ID.",
+          "nickname": "GET--version-issues--id---format-",
+          "method": "GET",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID da pendência que deverá ser retornada.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            }
+          ],
+          "type": "Issue",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Ok. Pendência encontrada."
+            },
+            {
+              "code": 404,
+              "message": "Pendência não encontrada."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        },
+        {
+          "notes": "",
+          "summary": "Atualiza uma pendência existente através do ID.",
+          "nickname": "PUT--version-issues--id---format-",
+          "method": "PUT",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID da pendência que deverá ser atualizada.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            },
+            {
+              "paramType": "body",
+              "name": "body",
+              "description": "<p>JSON com novos atributos da pendência.</p>\n",
+              "type": "Issue::Parameters",
+              "required": false,
+              "allowMultiple": false
+            }
+          ],
+          "type": "Issue",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Pendência atualizada com sucesso."
+            },
+            {
+              "code": 404,
+              "message": "Pendência não encontrada."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "basePath": "https://app.vindi.com.br/api",
+  "models": {
+    "Issue": {
+      "id": "Issue",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID da pendência",
+          "format": "int32"
+        },
+        "issue_type": {
+          "type": "string",
+          "description": "Tipo da pendência",
+          "enum": [
+            "charge_underpay",
+            "charge_overpay"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "description": "Status da pendência",
+          "enum": [
+            "open",
+            "closed"
+          ]
+        },
+        "item_type": {
+          "type": "string",
+          "description": "Tipo da entidade associada à pendência"
+        },
+        "item_id": {
+          "type": "string",
+          "description": "ID da entidade associada à pendência"
+        },
+        "data": {
+          "$ref": "hash",
+          "description": "Dados adicionais"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Data e hora da geração da pendência"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "Data e hora da última atualização da pendência"
+        },
+        "customer": {
+          "$ref": "Customer::Summary",
+          "description": "Cliente associado à pendência"
+        }
+      },
+      "required": [
+        "id",
+        "issue_type",
+        "status",
+        "item_type",
+        "item_id",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "Customer::Summary": {
+      "id": "Customer::Summary",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do cliente",
+          "format": "int32"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome do cliente"
+        },
+        "email": {
+          "type": "string",
+          "description": "E-mail do cliente"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código opcional para referência via API"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "Issue::Parameters": {
+      "id": "Issue::Parameters",
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "Status da pendência",
+          "enum": [
+            "open",
+            "closed"
+          ]
+        }
+      },
+      "required": [
+        "status"
+      ]
+    }
+  }
+}
