@@ -1,0 +1,786 @@
+{
+  "apiVersion": "v1",
+  "swaggerVersion": "1.2",
+  "resourcePath": "/plans",
+  "produces": [
+    "application/json; charset=UTF-8"
+  ],
+  "apis": [
+    {
+      "path": "/v1/plans",
+      "operations": [
+        {
+          "notes": "<p>Utilize este método para listar os planos associados à sua conta na Vindi. Leia a documentação sobre <a href=\"http://atendimento.vindi.com.br/hc/pt-br/articles/203020644#pagination\">paginação</a> e <a href=\"http://atendimento.vindi.com.br/hc/pt-br/articles/204163150\">filtros de busca</a>.</p>\n\n<h4 id=\"atributos-para-busca\">Atributos para busca</h4>\n<p><code>id</code>, <code>installments</code>, <code>name</code>, <code>interval_count</code>, <code>interval</code>, <code>billing_cycles</code>, <code>code</code>, <code>status</code>, <code>billing_trigger_day</code>, <code>billing_trigger_type</code>, <code>created_at</code> e <code>updated_at</code>.</p>\n",
+          "summary": "Retorna uma lista de planos.",
+          "nickname": "GET--version-plans---format-",
+          "method": "GET",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "page",
+              "description": "<p>Page of results to fetch.</p>\n",
+              "type": "integer",
+              "required": false,
+              "allowMultiple": false,
+              "format": "int32",
+              "defaultValue": 1
+            },
+            {
+              "paramType": "query",
+              "name": "per_page",
+              "description": "<p>Number of results to return per page.</p>\n",
+              "type": "integer",
+              "required": false,
+              "allowMultiple": false,
+              "format": "int32"
+            },
+            {
+              "paramType": "query",
+              "name": "query",
+              "description": "<p>Filtro para busca</p>\n",
+              "type": "string",
+              "required": false,
+              "allowMultiple": false
+            },
+            {
+              "paramType": "query",
+              "name": "sort_by",
+              "description": "<p>Atributo opcional para ordenação</p>\n",
+              "type": "string",
+              "required": false,
+              "allowMultiple": false,
+              "defaultValue": "created_at",
+              "enum": [
+                "id",
+                "installments",
+                "name",
+                "interval_count",
+                "interval",
+                "billing_cycles",
+                "code",
+                "status",
+                "billing_trigger_day",
+                "billing_trigger_type",
+                "created_at",
+                "updated_at"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "sort_order",
+              "description": "<p>Direção opcional para ordenação</p>\n",
+              "type": "string",
+              "required": false,
+              "allowMultiple": false,
+              "defaultValue": "asc",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          ],
+          "type": "Plan",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Consulta realizada com sucesso."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        },
+        {
+          "notes": "<p>Verifique documentação dos atributos no método <code>GET plans/{id}</code>.</p>\n",
+          "summary": "Cadastra um novo plano.",
+          "nickname": "POST--version-plans---format-",
+          "method": "POST",
+          "parameters": [
+            {
+              "paramType": "body",
+              "name": "body",
+              "description": "<p>JSON com atributos do novo plano.</p>\n",
+              "type": "Plan::Parameters::Create",
+              "required": false,
+              "allowMultiple": false
+            }
+          ],
+          "type": "Plan",
+          "responseMessages": [
+            {
+              "code": 201,
+              "message": "Plano cadastrado com sucesso."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/v1/plans/{id}",
+      "operations": [
+        {
+          "notes": "<p>Utilize esta função para obter um plano cadastrado na plataforma. Planos são utilizados para definir a base das assinaturas. Uma nova assinatura herdará a maioria dos atributos do plano respectivo no momento de sua criação. Se um plano for alterado, assinaturas associadas não serão atualizadas automaticamente.</p>\n\n<h4 id=\"durao-do-plano\">Duração do plano</h4>\n\n<p>A duração do plano é definida a partir da combinação de 3 atributos: <code>interval</code>, <code>interval_count</code> e <code>billing_cycles</code>. Com esses atributos é possível gerar qualquer combinação possível de periodicidade e duração. Exemplos:</p>\n\n<table>\n  <thead>\n    <tr>\n      <th>Duração</th>\n      <th><code>interval</code></th>\n      <th style=\"text-align: right\"><code>interval_count</code></th>\n      <th style=\"text-align: right\"><code>billing_cycles</code></th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>Plano mensal com duração ilimitada</td>\n      <td>‘months’</td>\n      <td style=\"text-align: right\">1</td>\n      <td style=\"text-align: right\">(nulo)</td>\n    </tr>\n    <tr>\n      <td>Plano mensal com duração de 3 meses</td>\n      <td>‘months’</td>\n      <td style=\"text-align: right\">1</td>\n      <td style=\"text-align: right\">3</td>\n    </tr>\n    <tr>\n      <td>Plano semanal com duração de 3 meses</td>\n      <td>‘days’</td>\n      <td style=\"text-align: right\">7</td>\n      <td style=\"text-align: right\">12</td>\n    </tr>\n    <tr>\n      <td>Plano anual com duração ilimitada</td>\n      <td>‘months’</td>\n      <td style=\"text-align: right\">12</td>\n      <td style=\"text-align: right\">(nulo)</td>\n    </tr>\n    <tr>\n      <td>Plano mensal com duração de 1 ano</td>\n      <td>‘months’</td>\n      <td style=\"text-align: right\">12</td>\n      <td style=\"text-align: right\">1</td>\n    </tr>\n  </tbody>\n</table>\n\n<p>Calcula-se a duração de um período multiplicando a duração do intervalo (<code>interval</code>) pelo número de intervalos (<code>interval_count</code>). O número máximo de períodos é definido pelo atributo <code>billing_cycles</code>. Através destas combinações é possível gerar planos quinzenais, mensais, semanais, semestrais, trimestrais, anuais, etc.</p>\n\n<p>O atributo <code>interval_name</code> no retorno exibe o nome do período gerado a partir dessas configurações.</p>\n\n<h4 id=\"precificao\">Precificação</h4>\n\n<p>Um plano não possui nenhuma informação relacionada ao preço. O valor de uma assinatura será calculado a partir dos produtos associados ao plano. Os produtos associados ao plano estão representados no atributo <code>plan_items</code>.</p>\n\n<h4 id=\"cobrana\">Cobrança</h4>\n\n<p>A data da geracão da cobrança de um período deve ser configurada usando os atributos <code>billing_trigger_type</code>, que define a orientação da data de cobrança, e <code>billing_trigger_day</code>, que define o dia da cobrança. Exemplos:</p>\n\n<table>\n  <thead>\n    <tr>\n      <th>Cobrança</th>\n      <th><code>billing_trigger_type</code></th>\n      <th style=\"text-align: right\"><code>billing_trigger_day</code></th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td>Exatamente no início do período</td>\n      <td>‘beginning_of_period’</td>\n      <td style=\"text-align: right\">0</td>\n    </tr>\n    <tr>\n      <td>Cinco dias após o início do período</td>\n      <td>‘beginning_of_period’</td>\n      <td style=\"text-align: right\">5</td>\n    </tr>\n    <tr>\n      <td>Dez dias antes do término do período</td>\n      <td>‘end_of_period’</td>\n      <td style=\"text-align: right\">-10</td>\n    </tr>\n    <tr>\n      <td>Um dia após o término do período</td>\n      <td>‘end_of_period’</td>\n      <td style=\"text-align: right\">1</td>\n    </tr>\n    <tr>\n      <td>Exatamento no dia 20 de cada mês</td>\n      <td>‘day_of_month’</td>\n      <td style=\"text-align: right\">20</td>\n    </tr>\n  </tbody>\n</table>\n\n<p>É importante observar que o tipo de cobrança ‘day_of_month’ só pode ser usado em planos mensais.</p>\n\n",
+          "summary": "Retorna um plano específico através do ID.",
+          "nickname": "GET--version-plans--id---format-",
+          "method": "GET",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID do plano que deverá ser retornado.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            }
+          ],
+          "type": "Plan",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Ok. Plano encontrado."
+            },
+            {
+              "code": 404,
+              "message": "Plano não encontrado."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        },
+        {
+          "notes": "<p>Verifique documentação dos atributos no método <code>GET plans/{id}</code>.</p>\n\n<h4 id=\"atualizando-produtos-relacionados\">Atualizando produtos relacionados</h4>\n\n<p>A lista de produtos relacionados à um plano é representado pelo array <code>plan_items</code>.</p>\n\n<ul>\n  <li>Para <strong>atualizar</strong> um objeto existente no array <code>plan_items</code>, simplesmente indique seu ID e os novos atributos.</li>\n  <li>Para <strong>criar</strong> um novo objeto, informe apenas os atributos sem o ID.</li>\n  <li>Para <strong>remover</strong> um objeto existente, inclua o atributo <code>\"_destroy\": \"1\"</code>, sem esquecer de informar o ID.</li>\n</ul>\n\n<p>Além disso é possível omitir o parâmetro <code>plan_items</code> na requisição para não atualizar os produtos relacionados.</p>\n",
+          "summary": "Atualiza um plano existente.",
+          "nickname": "PUT--version-plans--id---format-",
+          "method": "PUT",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID do plano que deverá ser atualizado.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            },
+            {
+              "paramType": "body",
+              "name": "body",
+              "description": "<p>JSON com os novos atributos do plano.</p>\n",
+              "type": "Plan::Parameters::Update",
+              "required": false,
+              "allowMultiple": false
+            }
+          ],
+          "type": "Plan",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Plano atualizado com sucesso."
+            },
+            {
+              "code": 404,
+              "message": "Plano não encontrado."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/v1/plans/{id}/plan_items",
+      "operations": [
+        {
+          "notes": "<p>Utilize este método para listar os itens associados a um produto. Leia a documentação sobre <a href=\"http://atendimento.vindi.com.br/hc/pt-br/articles/203020644#pagination\">paginação</a>.</p>\n",
+          "summary": "Retorna os itens do plano através de seu ID.",
+          "nickname": "GET--version-plans--id-plan_items---format-",
+          "method": "GET",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID do plano cujos itens deverão ser retornados.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            },
+            {
+              "paramType": "query",
+              "name": "page",
+              "description": "<p>Page of results to fetch.</p>\n",
+              "type": "integer",
+              "required": false,
+              "allowMultiple": false,
+              "format": "int32",
+              "defaultValue": 1
+            },
+            {
+              "paramType": "query",
+              "name": "per_page",
+              "description": "<p>Number of results to return per page.</p>\n",
+              "type": "integer",
+              "required": false,
+              "allowMultiple": false,
+              "format": "int32"
+            }
+          ],
+          "type": "PlanItem",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Ok. Itens encontrados."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "basePath": "https://app.vindi.com.br/api",
+  "models": {
+    "Plan": {
+      "id": "Plan",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do plano",
+          "format": "int32"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome do plano"
+        },
+        "interval": {
+          "type": "string",
+          "description": "Duração do intervalo",
+          "enum": [
+            "days",
+            "months"
+          ]
+        },
+        "interval_count": {
+          "type": "integer",
+          "description": "Número de intervalos dentro de um período",
+          "format": "int32"
+        },
+        "billing_trigger_type": {
+          "type": "string",
+          "description": "Referência para data de geração da cobrança",
+          "enum": [
+            "beginning_of_period",
+            "end_of_period",
+            "day_of_month"
+          ]
+        },
+        "billing_trigger_day": {
+          "type": "integer",
+          "description": "Dia para geração da cobrança",
+          "format": "int32"
+        },
+        "billing_cycles": {
+          "type": "integer",
+          "description": "Número máximo de períodos em uma assinatura. Nulo significa duração indefinida",
+          "format": "int32"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código externo para referência via API"
+        },
+        "description": {
+          "type": "string",
+          "description": "Descrição interna do plano"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status do plano",
+          "enum": [
+            "active",
+            "inactive",
+            "deleted"
+          ]
+        },
+        "installments": {
+          "type": "integer",
+          "description": "Número de parcelas",
+          "format": "int32"
+        },
+        "invoice_split": {
+          "type": "boolean",
+          "description": "Nota fiscal fracionada"
+        },
+        "interval_name": {
+          "type": "string",
+          "description": "Nome do intervalo do plano gerado automaticamente a partir dos parâmetros de duração"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Data e hora do cadastro do plano"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "Data e hora da última atualização do plano"
+        },
+        "plan_items": {
+          "items": {
+            "$ref": "PlanItem"
+          },
+          "type": "array",
+          "description": "Lista de produtos incluídos no plano.\n              Este atributo exibe os primeiros 25 itens.\n              Para os demais, consulte o método `GET /plans/:id/plan_items`"
+        },
+        "metadata": {
+          "$ref": "metadata",
+          "description": "Metadados do plano"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "interval",
+        "interval_count",
+        "billing_trigger_type",
+        "billing_trigger_day",
+        "status",
+        "installments",
+        "invoice_split",
+        "interval_name",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "PlanItem": {
+      "id": "PlanItem",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do item do plano",
+          "format": "int32"
+        },
+        "product": {
+          "$ref": "Product",
+          "description": "Produto associado ao plano"
+        },
+        "pricing_schema": {
+          "$ref": "PricingSchema",
+          "description": "Esquema de precificação atual do produto no plano"
+        },
+        "cycles": {
+          "type": "integer",
+          "description": "Número de ciclos de recorrência onde o produto será aplicado a partir do momento de sua criação. Nulo significa duração ilimitada",
+          "format": "int32"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Data e hora da criação do item"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "Data e hora da última atualização do item"
+        }
+      },
+      "required": [
+        "id",
+        "product",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "Product": {
+      "id": "Product",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do produto",
+          "format": "int32"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome do produto"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código externo do produto"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Texto para descrever uma unidade do produto. Apenas para quantidade variável"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status do produto",
+          "enum": [
+            "active",
+            "inactive",
+            "deleted"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "description": "Descrição interna do produto"
+        },
+        "invoice": {
+          "type": "string",
+          "description": "Indica se este produto será incluído na emissão de notas fiscais. Se não informado, o valor `always` será utilizado",
+          "enum": [
+            "always",
+            "never"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Data e hora do cadastro do produto"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "Data e hora da última atualização do produto"
+        },
+        "pricing_schema": {
+          "$ref": "PricingSchema",
+          "description": "Esquema de precificação atual do produto"
+        },
+        "metadata": {
+          "$ref": "metadata",
+          "description": "Metadados do produto"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "status",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "PricingSchema": {
+      "id": "PricingSchema",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID do esquema de precificação"
+        },
+        "short_format": {
+          "type": "string",
+          "description": "Descrição da precificação gerada automaticamente"
+        },
+        "price": {
+          "$ref": "number",
+          "description": "Preço base"
+        },
+        "minimum_price": {
+          "$ref": "number",
+          "description": "Preço mínimo"
+        },
+        "schema_type": {
+          "type": "string",
+          "description": "Tipo de cálculo da precificação",
+          "enum": [
+            "flat",
+            "per_unit",
+            "step_usage",
+            "volume_usage",
+            "tier_usage"
+          ]
+        },
+        "pricing_ranges": {
+          "items": {
+            "$ref": "PricingRange"
+          },
+          "type": "array",
+          "description": "Lista de faixas de precificação"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Data e hora do cadastro do esquema de precificação"
+        }
+      },
+      "required": [
+        "id",
+        "short_format",
+        "price",
+        "schema_type",
+        "created_at"
+      ]
+    },
+    "PricingRange": {
+      "id": "PricingRange",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID do faixa de precificação"
+        },
+        "start_quantity": {
+          "type": "integer",
+          "description": "Início da faixa",
+          "format": "int32"
+        },
+        "end_quantity": {
+          "type": "integer",
+          "description": "Término da faixa. Opcional apenas para a última",
+          "format": "int32"
+        },
+        "price": {
+          "$ref": "number",
+          "description": "Preço da unidade ou da faixa, dependendo do tipo escolhido"
+        },
+        "overage_price": {
+          "$ref": "number",
+          "description": "Preço unitário do excedente da faixa"
+        }
+      },
+      "required": [
+        "id",
+        "start_quantity",
+        "price"
+      ]
+    },
+    "Plan::Parameters::Create": {
+      "id": "Plan::Parameters::Create",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Nome do plano"
+        },
+        "interval": {
+          "type": "string",
+          "description": "Duração do intervalo",
+          "enum": [
+            "days",
+            "months"
+          ]
+        },
+        "interval_count": {
+          "type": "integer",
+          "description": "Número de intervalos dentro de um período",
+          "format": "int32"
+        },
+        "billing_trigger_type": {
+          "type": "string",
+          "description": "Referência para data de geração da cobrança",
+          "enum": [
+            "beginning_of_period",
+            "end_of_period",
+            "day_of_month"
+          ]
+        },
+        "billing_trigger_day": {
+          "type": "integer",
+          "description": "Dia para geração da cobrança",
+          "format": "int32"
+        },
+        "billing_cycles": {
+          "type": "integer",
+          "description": "Número máximo de períodos em uma assinatura. Nulo significa duração indefinida",
+          "format": "int32"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código externo para referência via API"
+        },
+        "description": {
+          "type": "string",
+          "description": "Descrição interna do plano"
+        },
+        "installments": {
+          "type": "integer",
+          "description": "Número de parcelas. Se não for informado, o valor '1' será utilizado",
+          "format": "int32"
+        },
+        "invoice_split": {
+          "type": "boolean",
+          "description": "Nota fiscal fracionada"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status do plano",
+          "enum": [
+            "active",
+            "inactive",
+            "deleted"
+          ]
+        },
+        "plan_items": {
+          "items": {
+            "$ref": "PlanItem::Parameters::Create"
+          },
+          "type": "array",
+          "description": "Lista de itens incluídos no plano"
+        },
+        "metadata": {
+          "$ref": "metadata",
+          "description": "Metadados do plano"
+        }
+      },
+      "required": [
+        "name",
+        "interval",
+        "interval_count",
+        "billing_trigger_type",
+        "billing_trigger_day"
+      ]
+    },
+    "PlanItem::Parameters::Create": {
+      "id": "PlanItem::Parameters::Create",
+      "properties": {
+        "cycles": {
+          "type": "integer",
+          "description": "Número de ciclos de recorrência onde o produto será aplicado a partir do momento de sua criação. Nulo significa duração ilimitada",
+          "format": "int32"
+        },
+        "product_id": {
+          "type": "integer",
+          "description": "ID do item",
+          "format": "int32"
+        }
+      },
+      "required": [
+        "product_id"
+      ]
+    },
+    "Plan::Parameters::Update": {
+      "id": "Plan::Parameters::Update",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Nome do plano"
+        },
+        "interval": {
+          "type": "string",
+          "description": "Duração do intervalo",
+          "enum": [
+            "days",
+            "months"
+          ]
+        },
+        "interval_count": {
+          "type": "integer",
+          "description": "Número de intervalos dentro de um período",
+          "format": "int32"
+        },
+        "billing_trigger_type": {
+          "type": "string",
+          "description": "Referência para data de geração da cobrança",
+          "enum": [
+            "beginning_of_period",
+            "end_of_period",
+            "day_of_month"
+          ]
+        },
+        "billing_trigger_day": {
+          "type": "integer",
+          "description": "Dia para geração da cobrança",
+          "format": "int32"
+        },
+        "billing_cycles": {
+          "type": "integer",
+          "description": "Número máximo de períodos em uma assinatura. Nulo significa duração indefinida",
+          "format": "int32"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código externo para referência via API"
+        },
+        "description": {
+          "type": "string",
+          "description": "Descrição interna do plano"
+        },
+        "installments": {
+          "type": "integer",
+          "description": "Número de parcelas. Se não for informado, o valor '1' será utilizado",
+          "format": "int32"
+        },
+        "invoice_split": {
+          "type": "boolean",
+          "description": "Nota fiscal fracionada"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status do plano",
+          "enum": [
+            "active",
+            "inactive",
+            "deleted"
+          ]
+        },
+        "plan_items": {
+          "items": {
+            "$ref": "PlanItem::Parameters::Update"
+          },
+          "type": "array",
+          "description": "Lista de itens incluídos no plano"
+        },
+        "metadata": {
+          "$ref": "metadata",
+          "description": "Metadados do plano"
+        }
+      },
+      "required": [
+        "name",
+        "interval",
+        "interval_count",
+        "billing_trigger_type",
+        "billing_trigger_day"
+      ]
+    },
+    "PlanItem::Parameters::Update": {
+      "id": "PlanItem::Parameters::Update",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do item. Informe apenas para atualizar um objeto existente",
+          "format": "int32"
+        },
+        "cycles": {
+          "type": "integer",
+          "description": "Número de ciclos de recorrência onde o produto será aplicado a partir do momento de sua criação. Nulo significa duração ilimitada",
+          "format": "int32"
+        },
+        "product_id": {
+          "type": "integer",
+          "description": "ID do item",
+          "format": "int32"
+        },
+        "_destroy": {
+          "type": "integer",
+          "description": "Preencha com '1' caso queira remover o objeto",
+          "format": "int32"
+        }
+      },
+      "required": [
+        "product_id"
+      ]
+    }
+  }
+}
