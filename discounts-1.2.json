@@ -1,0 +1,273 @@
+{
+  "apiVersion": "v1",
+  "swaggerVersion": "1.2",
+  "resourcePath": "/discounts",
+  "produces": [
+    "application/json; charset=UTF-8"
+  ],
+  "apis": [
+    {
+      "path": "/v1/discounts/{id}",
+      "operations": [
+        {
+          "notes": "<p>Um desconto pode ser aplicado à um item específico de uma assinatura (<code>product_item</code>) e possui duração configurável (<code>cycles</code>). Utilize este método para obter detalhes de um desconto específico.</p>\n\n<h4 id=\"durao\">Duração</h4>\n<p>A duração de um desconto pode ser definida através do atributo <code>cycles</code> que representa o número de ciclos de recorrência onde o desconto será aplicado. É possível, por exemplo, configurar um desconto apenas para a próxima fatura, ou então conceder um desconto permanente. Neste último caso, o atributo <code>cycles</code> deverá permanecer nulo.</p>\n\n<h4 id=\"tipo\">Tipo</h4>\n<p>Cada desconto possui um tipo de cálculo diferente que deve ser informado no atributo <code>discount_type</code>. Os seguintes tipos de desconto estão disponíveis:</p>\n\n<table>\n  <thead>\n    <tr>\n      <th>Tipo</th>\n      <th>Descrição</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td><code>percentage</code></td>\n      <td>Porcentagem: Desconto baseado na porcentagem informada. Utilize um valor númerico entre 0.01 e 100.</td>\n    </tr>\n    <tr>\n      <td><code>amount</code></td>\n      <td>Valor fixo: Desconto no valor exato informado. Mínimo: 0.01.</td>\n    </tr>\n    <tr>\n      <td><code>quantity</code></td>\n      <td>Quantidade: Apenas para produtos com precificação por quantidade fixa (sem faixas). Informe um valor inteiro maior ou igual a 1.</td>\n    </tr>\n  </tbody>\n</table>\n\n<h4 id=\"clculo\">Cálculo</h4>\n<p>Todos os descontos ativos serão aplicados no momento da geração da fatura e serão calculados a partir do valor original do item.</p>\n\n<p>Caso o total de descontos seja superior ao valor original, o preço final do produto permanecerá R$ 0,00.</p>\n\n<h4 id=\"desconto-sobre-desconto\">Desconto sobre desconto</h4>\n<p>Se um item possuir mais de um desconto ativo, todos eles serão calculados a partir do valor original, conforme mencionado acima. Como exemplo, considere um item que custava originalmente R$ 100,00 e recebeu dois descontos: R$ 10,00 e 50%:</p>\n\n<pre><code>Valor original: R$ 100,00\nDesconto 1: R$ 10,00\nDesconto 2: 50% de R$ 100,00 = R$ 50,00\n--\nValor final do produto: R$ 100,00 - R$ 60,00 = R$ 40,00\n</code></pre>\n",
+          "summary": "Retorna uma desconto específico através do ID.",
+          "nickname": "GET--version-discounts--id---format-",
+          "method": "GET",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID do desconto que deverá ser retornado.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            }
+          ],
+          "type": "Discount",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Ok. Desconto encontrado."
+            },
+            {
+              "code": 404,
+              "message": "Desconto não encontrado."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        },
+        {
+          "notes": "",
+          "summary": "Cancela um desconto através do ID.",
+          "nickname": "DELETE--version-discounts--id---format-",
+          "method": "DELETE",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID do desconto a ser cancelado.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            }
+          ],
+          "type": "Discount",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Desconto cancelado com sucesso."
+            },
+            {
+              "code": 404,
+              "message": "Desconto não encontrado."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/v1/discounts",
+      "operations": [
+        {
+          "notes": "",
+          "summary": "Cria um desconto em uma assinatura existente.",
+          "nickname": "POST--version-discounts---format-",
+          "method": "POST",
+          "parameters": [
+            {
+              "paramType": "body",
+              "name": "body",
+              "description": "<p>JSON com atributos do novo desconto.</p>\n",
+              "type": "Discount::Parameters::Create",
+              "required": false,
+              "allowMultiple": false
+            }
+          ],
+          "type": "Discount",
+          "responseMessages": [
+            {
+              "code": 201,
+              "message": "Desconto criado com sucesso."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "basePath": "https://app.vindi.com.br/api",
+  "models": {
+    "Discount": {
+      "id": "Discount",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do desconto",
+          "format": "int32"
+        },
+        "discount_type": {
+          "type": "string",
+          "description": "Tipo do desconto",
+          "enum": [
+            "percentage",
+            "amount",
+            "quantity"
+          ]
+        },
+        "percentage": {
+          "$ref": "number",
+          "description": "Valor numérico para porcentagem de 0.01 até 100"
+        },
+        "amount": {
+          "$ref": "number",
+          "description": "Valor para desconto fixo"
+        },
+        "quantity": {
+          "type": "integer",
+          "description": "Número para desconto por quantidade",
+          "format": "int32"
+        },
+        "cycles": {
+          "type": "integer",
+          "description": "Número de ciclos de recorrência onde o desconto será aplicado a partir do momento de sua criação. Nulo significa desconto por tempo indefinido",
+          "format": "int32"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status do desconto",
+          "enum": [
+            "active",
+            "inactive",
+            "deleted"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Data e hora do cadastro do desconto"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "Data e hora da última atualização do desconto"
+        },
+        "product_item": {
+          "$ref": "ProductItem::Summary",
+          "description": "Produtos associado ao desconto"
+        }
+      },
+      "required": [
+        "id",
+        "discount_type",
+        "status",
+        "created_at",
+        "updated_at",
+        "product_item"
+      ]
+    },
+    "ProductItem::Summary": {
+      "id": "ProductItem::Summary",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do item",
+          "format": "int32"
+        },
+        "product": {
+          "$ref": "Product::Summary",
+          "description": "Produto associado ao plano"
+        }
+      },
+      "required": [
+        "id",
+        "product"
+      ]
+    },
+    "Product::Summary": {
+      "id": "Product::Summary",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do produto",
+          "format": "int32"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome do produto"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código externo do produto"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "Discount::Parameters::Create": {
+      "id": "Discount::Parameters::Create",
+      "properties": {
+        "product_item_id": {
+          "type": "integer",
+          "description": "ID do item da assinatura que receberá o desconto",
+          "format": "int32"
+        },
+        "discount_type": {
+          "type": "string",
+          "description": "Tipo do desconto",
+          "enum": [
+            "percentage",
+            "amount",
+            "quantity"
+          ]
+        },
+        "percentage": {
+          "$ref": "number",
+          "description": "Valor numérico para porcentagem de 0.01 até 100"
+        },
+        "amount": {
+          "$ref": "number",
+          "description": "Valor para desconto fixo"
+        },
+        "quantity": {
+          "type": "integer",
+          "description": "Número para desconto por quantidade",
+          "format": "int32"
+        },
+        "cycles": {
+          "type": "integer",
+          "description": "Número de ciclos de recorrência onde o desconto será aplicado a partir do momento de sua criação. Nulo significa desconto por tempo indefinido",
+          "format": "int32"
+        }
+      },
+      "required": [
+        "product_item_id",
+        "discount_type"
+      ]
+    }
+  }
+}
