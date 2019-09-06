@@ -1,0 +1,1568 @@
+{
+  "apiVersion": "v1",
+  "swaggerVersion": "1.2",
+  "resourcePath": "/subscriptions",
+  "produces": [
+    "application/json; charset=UTF-8"
+  ],
+  "apis": [
+    {
+      "path": "/v1/subscriptions",
+      "operations": [
+        {
+          "notes": "<p>Utilize este método para listar as assinaturas associadas à sua conta na Vindi. Leia a documentação sobre <a href=\"http://atendimento.vindi.com.br/hc/pt-br/articles/203020644#pagination\">paginação</a> e <a href=\"http://atendimento.vindi.com.br/hc/pt-br/articles/204163150\">filtros de busca</a>.</p>\n\n<h4 id=\"atributos-para-busca\">Atributos para busca</h4>\n<p><code>status</code>,\n<code>id</code>, <code>code</code>, <code>installments</code>, <code>customer_id</code>, <code>interval</code>, <code>interval_count</code>, <code>billing_trigger_day</code>, <code>billing_trigger_type</code>, <code>billing_cycles</code>, <code>plan_id</code>, <code>payment_method_id</code>, <code>start_at</code>, <code>cancel_at</code>, <code>overdue_since</code>, <code>created_at</code>, <code>updated_at</code> e <code>end_at</code>.</p>\n\n<h4 id=\"inadimplncia\">Inadimplência</h4>\n<p>Além dos filtros acima, a busca por assinaturas adimplentes ou inadimplentes pode ser realizada através do atributo <code>overdue_since</code> no parâmetro <code>query</code>. Exemplos:</p>\n\n<ul>\n  <li>Assinaturas adimplentes: <code>overdue_since = null</code></li>\n  <li>Assinaturas inadimplentes: <code>overdue_since != null</code></li>\n  <li>Assinaturas inadimplentes há mais de n dias: <code>overdue_since &lt; 2016-03-15</code></li>\n</ul>\n\n<h4 id=\"itens-da-assinatura\">Itens da assinatura</h4>\n\n<p>Uma assinatura é composta de vários itens representados no array <code>product_items</code>. Este endpoint lista apenas os 25 primeiros itens de cada assinatura. Caso queira listar mais itens de uma assinatura, utilize o método da API <code>GET /subscriptions/{id}/product_items</code>.</p>\n",
+          "summary": "Retorna uma lista de assinaturas.",
+          "nickname": "GET--version-subscriptions---format-",
+          "method": "GET",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "page",
+              "description": "<p>Page of results to fetch.</p>\n",
+              "type": "integer",
+              "required": false,
+              "allowMultiple": false,
+              "format": "int32",
+              "defaultValue": 1
+            },
+            {
+              "paramType": "query",
+              "name": "per_page",
+              "description": "<p>Number of results to return per page.</p>\n",
+              "type": "integer",
+              "required": false,
+              "allowMultiple": false,
+              "format": "int32"
+            },
+            {
+              "paramType": "query",
+              "name": "query",
+              "description": "<p>Filtro para busca</p>\n",
+              "type": "string",
+              "required": false,
+              "allowMultiple": false
+            },
+            {
+              "paramType": "query",
+              "name": "sort_by",
+              "description": "<p>Atributo opcional para ordenação</p>\n",
+              "type": "string",
+              "required": false,
+              "allowMultiple": false,
+              "defaultValue": "created_at",
+              "enum": [
+                "id",
+                "code",
+                "installments",
+                "customer_id",
+                "interval",
+                "interval_count",
+                "billing_trigger_day",
+                "billing_trigger_type",
+                "billing_cycles",
+                "plan_id",
+                "payment_method_id",
+                "start_at",
+                "cancel_at",
+                "overdue_since",
+                "created_at",
+                "updated_at",
+                "end_at"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "sort_order",
+              "description": "<p>Sentido opcional para ordenação</p>\n",
+              "type": "string",
+              "required": false,
+              "allowMultiple": false,
+              "defaultValue": "asc",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          ],
+          "type": "Subscription",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Consulta realizada com sucesso."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        },
+        {
+          "notes": "<p>Este método irá criar uma assinatura e obrigatoriamente retornar o objeto <code>subscription</code>. Se os parâmetros do plano indicarem uma cobrança imediata, o retorno da mesma requisição também irá conter os detalhes da fatura emitida, representada pelo objeto <code>bill</code>. Dentro deste objeto você poderá encontrar informações mais detalhadas sobre o processamento da transação (<code>last_transaction</code>).</p>\n\n<h4 id=\"exemplo-de-requisio\">Exemplo de requisição</h4>\n\n<pre><code>  {\n    \"plan_id\": 12,\n    \"customer_id\": 142,\n    \"payment_method_code\": \"credit_card\",\n    \"product_items\": [\n      { \"product_id\": 14 }\n    ]\n  }\n</code></pre>\n\n<p>Para mais detalhes e possibilidades de customização, consulte abaixo a seção <strong>Parâmetros</strong>.</p>\n\n<h4 id=\"mtodo-de-pagamento\">Método de pagamento</h4>\n\n<p>Para uma lista dos métodos de pagamento disponíveis e seus respectivos códigos, consulte o serviço <code>GET payment_methods</code>.</p>\n\n<p>A plataforma tomará uma ação diferente dependendo do método de pagamento informado através do parâmetro <code>payment_method_code</code>. Caso o método exija, por exemplo, os dados do cartão de crédito do cliente, a plataforma irá verificar se o cliente em questão possui um cartão válido. Se possuir, uma tentativa de cobrança será efetuada. Se não possuir, um e-mail será enviado ao cliente solicitando seus dados de pagamento.</p>\n\n<p>Caso a forma de pagamento não exija nenhum dado adicional, um e-mail será enviado ao cliente. Boletos bancários possuem exatamente este comportamento.</p>\n\n<h4 id=\"produtos-da-assinatura\">Produtos da assinatura</h4>\n\n<p>Por padrão, a lista de itens da nova assinatura herdará as configurações de itens do plano informado via <code>plan_id</code>.</p>\n\n<p>Caso seja necessário, também é possível customizar esta lista de itens no momento da criação da assinatura através do array <code>product_items</code>. Através deste array de objetos é possível definir quais serão os produtos (<code>product_id</code>), quantidades (<code>quantity</code>) e o número de períodos (<code>cycles</code>) onde cada produto deverá será aplicado. Este atributo é especialmente útil para definir condições específicas que fogem das condições normais de precificação que você definiu no plano.</p>\n\n<h4 id=\"customizao-da-precificao\">Customização da precificação</h4>\n\n<p>Caso o atributo <code>pricing_schema</code> não seja informado no <code>product_item</code>, a plataforma irá assumir a precificação padrão do produto. Se quiser customizar a precificação exclusivamente para esta assinatura, é possível informar o atributo <code>pricing_schema</code> com os parâmetros descritos abaixo. Mais detalhes sobre a precificação de produtos podem ser encontrados <a href=\"http://atendimento.vindi.com.br/hc/pt-br/articles/203303380\">neste artigo</a>.</p>\n\n<h4 id=\"descontos\">Descontos</h4>\n\n<p>Cada produto da assinatura poderá receber um ou mais descontos que serão utilizados no cálculo da geração das faturas. Informe o atributo <code>discounts</code> para <code>product_item</code>. Caso mais de um desconto seja informado para o mesmo produto, os valores serão sempre calculados a partir do valor inicial.</p>\n\n<h4 id=\"tratamento-de-assinaturas-com-pagamentos-rejeitados\">Tratamento de assinaturas com pagamentos rejeitados</h4>\n\n<p>Conforme mencionado anteriormente, a plataforma irá retornar a fatura gerada (<code>bill</code>) caso a assinatura possua uma cobrança imediata. Se este retorno possuir uma fatura pendente (<code>\"status\": \"pending\"</code>) e uma transação rejeitada, você terá as seguintes opções:</p>\n\n<ul>\n  <li><strong>Manter a assinatura ativa</strong> e aguardar a retentativa automática da plataforma na data indicada pelo atributo <code>next_attempt</code>.</li>\n  <li><strong>Efetuar uma nova tentativa</strong> de cobrança através do método <code>POST /charges/{id}/charge</code>. Opcionalmente você poderá informar um novo perfil de pagamento.</li>\n  <li><strong>Cancelar a assinatura e a fatura pendente</strong> através do método <code>DELETE /subscriptions/{id}?cancel_bills=true</code>.</li>\n  <li><strong>Enviar um e-mail</strong> com um link para a tela de pagamento da fatura. Este e-mail poderá ser enviado automaticamente pelas notificações da plataforma (cobrança rejeitada) ou se preferir, manualmente através do seu próprio backend. Neste caso, use o endereço contido no atributo <code>url</code> do objeto <code>bill</code>.</li>\n</ul>\n",
+          "summary": "Cria uma nova assinatura.",
+          "nickname": "POST--version-subscriptions---format-",
+          "method": "POST",
+          "parameters": [
+            {
+              "paramType": "body",
+              "name": "body",
+              "description": "<p>JSON com atributos da nova assinatura.</p>\n",
+              "type": "Subscription::Parameters::Create",
+              "required": false,
+              "allowMultiple": false
+            }
+          ],
+          "type": "Subscription::Response::Create",
+          "responseMessages": [
+            {
+              "code": 201,
+              "message": "Assinatura criada com sucesso."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/v1/subscriptions/{id}",
+      "operations": [
+        {
+          "notes": "<p>A assinatura é uma das entidades principais da plataforma e representa a relação entre um plano e um cliente. É a partir dela que faturas, cobranças e períodos são gerados.</p>\n\n<h4 id=\"perodos\">Períodos</h4>\n<p>Toda assinatura possui obrigatoriamente um ou mais períodos de recorrência. Verifique a documentação do método <code>GET subscriptions/{id}/periods</code> para mais detalhes. Os períodos são gerados automaticamente pela plataforma.</p>\n\n<h4 id=\"status\">Status</h4>\n\n<table>\n  <thead>\n    <tr>\n      <th>Status</th>\n      <th>Descrição</th>\n    </tr>\n  </thead>\n  <tbody>\n    <tr>\n      <td><code>active</code></td>\n      <td>Assinatura ativa. O atributo <code>current_period</code> irá obrigatoriamente conter os dados do período atual.</td>\n    </tr>\n    <tr>\n      <td><code>future</code></td>\n      <td>Assinatura programada para uma data no futuro. Verifique o atributo <code>start_at</code>.</td>\n    </tr>\n    <tr>\n      <td><code>canceled</code></td>\n      <td>Assinatura cancelada.</td>\n    </tr>\n    <tr>\n      <td><code>expired</code></td>\n      <td>Assinatura encerrada. Este status ocorre apenas quando a assinatura possui duração limitada. Verifique o atributo <code>billing_cycles</code>.</td>\n    </tr>\n  </tbody>\n</table>\n\n<h4 id=\"herana-de-atributos\">Herança de atributos</h4>\n<p>Todos os atributos relacionados à periodicidade da assinatura e precificação dos produtos são herdados no momento da criação e não são atualizados automaticamente quando o plano de origem é alterado. Este comportamento existe para permitir que assinaturas usando mesmo plano possam utilizar condições de precificação diferentes. Ainda assim você pode realizar alterações em massa utilizando a API.</p>\n\n<h4 id=\"descontos\">Descontos</h4>\n<p>Uma lista de descontos ativos será retornada no atributo <code>discounts</code> do objeto <code>product_item</code>. Caso você crie uma assinatura com cobrança imediata e um desconto temporário (<code>cycles: 1</code>), o mesmo será aplicado logo na primeira fatura e portanto não será mais considerado um desconto ativo.</p>\n",
+          "summary": "Retorna uma assinatura específica através do ID.",
+          "nickname": "GET--version-subscriptions--id---format-",
+          "method": "GET",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID da assinatura que deverá ser retornada.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            }
+          ],
+          "type": "Subscription",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Ok. Assinatura encontrada."
+            },
+            {
+              "code": 404,
+              "message": "Assinatura não encontrada."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        },
+        {
+          "notes": "<p>Utilize este método para alterar os atributos de uma assinatura existente.</p>\n\n<h4 id=\"reagendamento-da-data-de-cobrana\">Reagendamento da data de cobrança</h4>\n<p>A data de cobrança da assinatura pode ser atualizada através dos parâmetros <code>billing_trigger_type</code> e <code>billing_trigger_day</code>.</p>\n\n<p>Após a atualização, a plataforma irá retornar a próxima data de cobrança calculada no atributo <code>next_billing_at</code>. Se esta data for igual ou anterior ao dia corrente, você poderá gerar uma fatura manualmente usando o método <code>POST /periods/{id}/bill</code>. A plataforma não irá emitir faturas retroativas automaticamente.</p>\n\n<p>Por motivos de retrocompatibilidade, a atualização da data de cobrança diretamente através do parâmetro <code>next_billing_at</code> ainda é possível, porém não recomendável.</p>\n\n<h4 id=\"itens-da-assinatura\">Itens da assinatura</h4>\n<p>Para atualizar os itens da assinatura, utilize o serviço <code>product_items</code>.</p>\n",
+          "summary": "Atualiza uma assinatura existente.",
+          "nickname": "PUT--version-subscriptions--id---format-",
+          "method": "PUT",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID da assinatura que deverá ser atualizada.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            },
+            {
+              "paramType": "body",
+              "name": "body",
+              "description": "<p>JSON com os novos atributos da assinatura.</p>\n",
+              "type": "Subscription::Parameters::Update",
+              "required": false,
+              "allowMultiple": false
+            }
+          ],
+          "type": "Subscription",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Assinatura atualizada com sucesso."
+            },
+            {
+              "code": 404,
+              "message": "Assinatura não encontrada."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        },
+        {
+          "notes": "",
+          "summary": "Cancela uma assinatura através do ID.",
+          "nickname": "DELETE--version-subscriptions--id---format-",
+          "method": "DELETE",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID da assinatura a ser cancelada.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            },
+            {
+              "paramType": "query",
+              "name": "cancel_bills",
+              "description": "<p>Indica se faturas pendentes da assinatura também devem ser canceladas. Default: true</p>\n",
+              "type": "boolean",
+              "required": false,
+              "allowMultiple": false,
+              "defaultValue": true
+            },
+            {
+              "paramType": "query",
+              "name": "comments",
+              "description": "<p>Comentários opcionais sobre o cancelamento.</p>\n",
+              "type": "string",
+              "required": false,
+              "allowMultiple": false
+            }
+          ],
+          "type": "Subscription",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Assinatura cancelada com sucesso."
+            },
+            {
+              "code": 404,
+              "message": "Assinatura não encontrada."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/v1/subscriptions/{id}/product_items",
+      "operations": [
+        {
+          "notes": "<p>Utilize este método para listar os itens associados a uma assinatura. Leia a documentação sobre <a href=\"http://atendimento.vindi.com.br/hc/pt-br/articles/203020644#pagination\">paginação</a>.</p>\n",
+          "summary": "Retorna os itens de uma assinatura através do seu ID.",
+          "nickname": "GET--version-subscriptions--id-product_items---format-",
+          "method": "GET",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID da assinatura cujos itens deverão ser retornados.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            },
+            {
+              "paramType": "query",
+              "name": "page",
+              "description": "<p>Page of results to fetch.</p>\n",
+              "type": "integer",
+              "required": false,
+              "allowMultiple": false,
+              "format": "int32",
+              "defaultValue": 1
+            },
+            {
+              "paramType": "query",
+              "name": "per_page",
+              "description": "<p>Number of results to return per page.</p>\n",
+              "type": "integer",
+              "required": false,
+              "allowMultiple": false,
+              "format": "int32"
+            }
+          ],
+          "type": "ProductItem",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Ok. Itens encontrados."
+            },
+            {
+              "code": 404,
+              "message": "Itens não encontrados."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/v1/subscriptions/{id}/renew",
+      "operations": [
+        {
+          "notes": "<p>O processo de renovação de assinaturas é automático. Utilize esse método para adiantar a renovação de uma assinatura.</p>\n",
+          "summary": "Renova uma assinatura existente.",
+          "nickname": "POST--version-subscriptions--id-renew---format-",
+          "method": "POST",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID da assinatura que deverá ser renovada.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            }
+          ],
+          "type": "Subscription",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Assinatura renovada com sucesso."
+            },
+            {
+              "code": 404,
+              "message": "Assinatura não encontrada."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/v1/subscriptions/{id}/reactivate",
+      "operations": [
+        {
+          "notes": "<p>Utilize esta função para reativar assinaturas canceladas. Leia mais sobre este assunto na <a href=\"http://atendimento.vindi.com.br/hc/pt-br/articles/204893474\">documentação sobre reativação de assinaturas</a>.</p>\n",
+          "summary": "Reativa uma assinatura cancelada através do ID.",
+          "nickname": "POST--version-subscriptions--id-reactivate---format-",
+          "method": "POST",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID da assinatura a ser reativada.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            }
+          ],
+          "type": "Subscription::Response::Create",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Assinatura reativada com sucesso."
+            },
+            {
+              "code": 404,
+              "message": "Assinatura não encontrada."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "basePath": "https://app.vindi.com.br/api",
+  "models": {
+    "Subscription": {
+      "id": "Subscription",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID da assinatura",
+          "format": "int32"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status da assinatura",
+          "enum": [
+            "active",
+            "canceled",
+            "future",
+            "expired"
+          ]
+        },
+        "start_at": {
+          "type": "string",
+          "description": "Data do início da assinatura no formato ISO 8601"
+        },
+        "end_at": {
+          "type": "string",
+          "description": "Data do término da assinatura no formato ISO 8601"
+        },
+        "next_billing_at": {
+          "type": "string",
+          "description": "Data da próxima cobrança da assinatura"
+        },
+        "overdue_since": {
+          "type": "string",
+          "description": "Data do início da inadimplência"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código externo para referência via API"
+        },
+        "cancel_at": {
+          "type": "string",
+          "description": "Data do cancelamento da assinatura"
+        },
+        "interval": {
+          "type": "string",
+          "description": "Duração do intervalo",
+          "enum": [
+            "days",
+            "months"
+          ]
+        },
+        "interval_count": {
+          "type": "integer",
+          "description": "Número de intervalos dentro de um período",
+          "format": "int32"
+        },
+        "billing_trigger_type": {
+          "type": "string",
+          "description": "Referência para data de geração da cobrança",
+          "enum": [
+            "beginning_of_period",
+            "end_of_period",
+            "day_of_month"
+          ]
+        },
+        "billing_trigger_day": {
+          "type": "integer",
+          "description": "Dia para geração da cobrança.",
+          "format": "int32"
+        },
+        "billing_cycles": {
+          "type": "integer",
+          "description": "Número máximo de períodos da assinatura. Nulo significa duração indefinida",
+          "format": "int32"
+        },
+        "installments": {
+          "type": "integer",
+          "description": "Número de parcelas",
+          "format": "int32"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Data e hora do cadastro da assinatura"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "Data e hora da última atualização da assinatura"
+        },
+        "customer": {
+          "$ref": "Customer::Summary",
+          "description": "Cliente da assinatura"
+        },
+        "plan": {
+          "$ref": "Plan::Summary",
+          "description": "Plano da assinatura"
+        },
+        "product_items": {
+          "items": {
+            "$ref": "ProductItem"
+          },
+          "type": "array",
+          "description": "Produtos incluídos na assinatura. Este atributo exibe os primeiros 25 itens. Para os demais, consulte o método `GET /subscriptions/:id/product_items`."
+        },
+        "payment_method": {
+          "$ref": "PaymentMethod::Summary",
+          "description": "Método de pagamento utilizado"
+        },
+        "current_period": {
+          "$ref": "Period::Summary",
+          "description": "Período atual da assinatura, se existir"
+        },
+        "metadata": {
+          "$ref": "metadata",
+          "description": "Metadados da assinatura"
+        },
+        "payment_profile": {
+          "$ref": "PaymentProfile::Summary",
+          "description": "Perfil de pagamento associada à assinatura. Este atributo permancerá nulo caso nenhum perfil de pagamento esteja explicitamente associado à assinatura."
+        },
+        "invoice_split": {
+          "type": "boolean",
+          "description": "Nota fiscal fracionada. Indica se uma nota fiscal será emitida de acordo com a periodicidade do plano."
+        }
+      },
+      "required": [
+        "id",
+        "status",
+        "start_at",
+        "interval",
+        "interval_count",
+        "billing_trigger_type",
+        "billing_trigger_day",
+        "installments",
+        "created_at",
+        "updated_at",
+        "customer",
+        "plan",
+        "product_items",
+        "payment_method"
+      ]
+    },
+    "Customer::Summary": {
+      "id": "Customer::Summary",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do cliente",
+          "format": "int32"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome do cliente"
+        },
+        "email": {
+          "type": "string",
+          "description": "E-mail do cliente"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código opcional para referência via API"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "Plan::Summary": {
+      "id": "Plan::Summary",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do plano",
+          "format": "int32"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome do plano"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código externo do plano"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "ProductItem": {
+      "id": "ProductItem",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do item",
+          "format": "int32"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status do item",
+          "enum": [
+            "active",
+            "inactive",
+            "deleted"
+          ]
+        },
+        "uses": {
+          "type": "integer",
+          "description": "Número de ciclos de recorrência que utilizaram o produto.",
+          "format": "int32"
+        },
+        "cycles": {
+          "type": "integer",
+          "description": "Número de ciclos de recorrência onde o produto será aplicado a partir do momento de sua criação. Nulo significa duração ilimitada",
+          "format": "int32"
+        },
+        "quantity": {
+          "type": "integer",
+          "description": "Quantidade do produto incluído na assinatura. Se não for informado, o valor '1' será utilizado",
+          "format": "int32"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Data e hora da criação do item"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "Data e hora da última atualização do item"
+        },
+        "product": {
+          "$ref": "Product::Summary",
+          "description": "Produto associado ao plano"
+        },
+        "pricing_schema": {
+          "$ref": "PricingSchema",
+          "description": "Esquema de precificação atual do item"
+        },
+        "discounts": {
+          "items": {
+            "$ref": "Discount::Summary"
+          },
+          "type": "array",
+          "description": "Lista de descontos ativos. Descontos já aplicados não serão retornados"
+        }
+      },
+      "required": [
+        "id",
+        "status",
+        "created_at",
+        "updated_at",
+        "product"
+      ]
+    },
+    "Product::Summary": {
+      "id": "Product::Summary",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do produto",
+          "format": "int32"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome do produto"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código externo do produto"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "PricingSchema": {
+      "id": "PricingSchema",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID do esquema de precificação"
+        },
+        "short_format": {
+          "type": "string",
+          "description": "Descrição da precificação gerada automaticamente"
+        },
+        "price": {
+          "$ref": "number",
+          "description": "Preço base"
+        },
+        "minimum_price": {
+          "$ref": "number",
+          "description": "Preço mínimo"
+        },
+        "schema_type": {
+          "type": "string",
+          "description": "Tipo de cálculo da precificação",
+          "enum": [
+            "flat",
+            "per_unit",
+            "step_usage",
+            "volume_usage",
+            "tier_usage"
+          ]
+        },
+        "pricing_ranges": {
+          "items": {
+            "$ref": "PricingRange"
+          },
+          "type": "array",
+          "description": "Lista de faixas de precificação"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Data e hora do cadastro do esquema de precificação"
+        }
+      },
+      "required": [
+        "id",
+        "short_format",
+        "price",
+        "schema_type",
+        "created_at"
+      ]
+    },
+    "PricingRange": {
+      "id": "PricingRange",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID do faixa de precificação"
+        },
+        "start_quantity": {
+          "type": "integer",
+          "description": "Início da faixa",
+          "format": "int32"
+        },
+        "end_quantity": {
+          "type": "integer",
+          "description": "Término da faixa. Opcional apenas para a última",
+          "format": "int32"
+        },
+        "price": {
+          "$ref": "number",
+          "description": "Preço da unidade ou da faixa, dependendo do tipo escolhido"
+        },
+        "overage_price": {
+          "$ref": "number",
+          "description": "Preço unitário do excedente da faixa"
+        }
+      },
+      "required": [
+        "id",
+        "start_quantity",
+        "price"
+      ]
+    },
+    "Discount::Summary": {
+      "id": "Discount::Summary",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do desconto",
+          "format": "int32"
+        },
+        "discount_type": {
+          "type": "string",
+          "description": "Tipo do desconto",
+          "enum": [
+            "percentage",
+            "amount",
+            "quantity"
+          ]
+        },
+        "percentage": {
+          "$ref": "number",
+          "description": "Valor numérico para porcentagem de 0.01 até 100"
+        },
+        "amount": {
+          "$ref": "number",
+          "description": "Valor para desconto fixo"
+        },
+        "quantity": {
+          "type": "integer",
+          "description": "Número para desconto por quantidade",
+          "format": "int32"
+        },
+        "cycles": {
+          "type": "integer",
+          "description": "Número de ciclos de recorrência onde o desconto será aplicado a partir do momento de sua criação. Nulo significa desconto por tempo indefinido",
+          "format": "int32"
+        }
+      },
+      "required": [
+        "id",
+        "discount_type"
+      ]
+    },
+    "PaymentMethod::Summary": {
+      "id": "PaymentMethod::Summary",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do método de pagamento",
+          "format": "int32"
+        },
+        "public_name": {
+          "type": "string",
+          "description": "Nome público do método de pagamento"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome interno do método de pagamento"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código externo para referência via API"
+        },
+        "type": {
+          "type": "string",
+          "description": "Tipo do método de pagamento"
+        }
+      },
+      "required": [
+        "id",
+        "public_name",
+        "name",
+        "code",
+        "type"
+      ]
+    },
+    "Period::Summary": {
+      "id": "Period::Summary",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do período",
+          "format": "int32"
+        },
+        "billing_at": {
+          "type": "string",
+          "description": "Data para geração automática da cobrança do período"
+        },
+        "cycle": {
+          "type": "integer",
+          "description": "Ciclo do período",
+          "format": "int32"
+        },
+        "start_at": {
+          "type": "string",
+          "description": "Data e hora do início do período"
+        },
+        "end_at": {
+          "type": "string",
+          "description": "Data e hora do término do período"
+        },
+        "duration": {
+          "type": "integer",
+          "description": "Duração do período em número de segundos",
+          "format": "int32"
+        }
+      },
+      "required": [
+        "id",
+        "cycle",
+        "start_at",
+        "end_at",
+        "duration"
+      ]
+    },
+    "PaymentProfile::Summary": {
+      "id": "PaymentProfile::Summary",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do perfil de pagamento",
+          "format": "int32"
+        },
+        "holder_name": {
+          "type": "string",
+          "description": "Nome do titular/portador do perfil de pagamento"
+        },
+        "registry_code": {
+          "type": "string",
+          "description": "CPF ou CNPJ do titular/portador"
+        },
+        "bank_branch": {
+          "type": "string",
+          "description": "Agência da conta bancária"
+        },
+        "bank_account": {
+          "type": "string",
+          "description": "Número da conta bancária"
+        },
+        "card_expiration": {
+          "type": "string",
+          "description": "Validade do cartão de crédito no formato MM/AA"
+        },
+        "card_number_first_six": {
+          "type": "string",
+          "description": "Primeiros 6 dígitos do cartão de crédito (BIN/IIN)"
+        },
+        "card_number_last_four": {
+          "type": "string",
+          "description": "Últimos 4 dígitos do cartão de crédito"
+        },
+        "token": {
+          "type": "string",
+          "description": "Token interno para referência do perfil de pagamento"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Data e hora do cadastro do perfil de pagamento"
+        },
+        "payment_company": {
+          "$ref": "PaymentCompany",
+          "description": "Bandeira ou banco do perfil de pagamento"
+        }
+      },
+      "required": [
+        "id",
+        "token",
+        "created_at",
+        "payment_company"
+      ]
+    },
+    "PaymentCompany": {
+      "id": "PaymentCompany",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID da bandeira ou banco",
+          "format": "int32"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome da bandeira ou banco"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código para referência via API"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "code"
+      ]
+    },
+    "Subscription::Response::Create": {
+      "id": "Subscription::Response::Create",
+      "properties": {
+        "subscription": {
+          "$ref": "Subscription",
+          "description": "Assinatura"
+        },
+        "bill": {
+          "$ref": "Bill::Subscription",
+          "description": "Fatura criada, se existir"
+        }
+      },
+      "required": [
+        "subscription"
+      ]
+    },
+    "Subscription::Parameters::Create": {
+      "id": "Subscription::Parameters::Create",
+      "properties": {
+        "start_at": {
+          "type": "string",
+          "description": "Data do início da assinatura no formato ISO 8601. Use nulo na criação para início imediato"
+        },
+        "plan_id": {
+          "type": "integer",
+          "description": "ID do plano",
+          "format": "int32"
+        },
+        "customer_id": {
+          "type": "integer",
+          "description": "ID do cliente",
+          "format": "int32"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código externo para referência via API"
+        },
+        "payment_method_code": {
+          "type": "string",
+          "description": "Código do método de pagamento"
+        },
+        "installments": {
+          "type": "integer",
+          "description": "Parcelamento da cobrança. Deve ser informado apenas se você desejar sobrescrever a configuração herdada do plano",
+          "format": "int32"
+        },
+        "billing_trigger_type": {
+          "type": "string",
+          "description": "Referência para data de geração da cobrança. Deve ser informado apenas se você desejar sobrescrever a configuração herdada do plano",
+          "enum": [
+            "beginning_of_period",
+            "end_of_period",
+            "day_of_month"
+          ]
+        },
+        "billing_trigger_day": {
+          "type": "integer",
+          "description": "Dia para geração da cobrança. Deve ser informado apenas se você desejar sobrescrever a configuração herdada do plano",
+          "format": "int32"
+        },
+        "billing_cycles": {
+          "type": "integer",
+          "description": "Número máximo de períodos da assinatura. Deve ser informado apenas se você desejar sobrescrever a configuração herdada do plano",
+          "format": "int32"
+        },
+        "metadata": {
+          "$ref": "metadata",
+          "description": "Metadados da assinatura"
+        },
+        "product_items": {
+          "items": {
+            "$ref": "ProductItem::Parameters::CreateSubscription"
+          },
+          "type": "array",
+          "description": "Lista de itens incluídos na assinatura"
+        },
+        "payment_profile": {
+          "$ref": "PaymentProfile::Parameters::FindOrCreate",
+          "description": "Perfil de pagamento associado à assinatura. Se não informado, o perfil de pagamento mais recente será utilizado (recomendável)"
+        },
+        "invoice_split": {
+          "type": "boolean",
+          "description": "Nota fiscal fracionada. Indica se uma nota fiscal será emitida de acordo com a periodicidade do plano (`true`). Deve ser informado apenas se você desejar sobrescrever a configuração herdada do plano"
+        }
+      },
+      "required": [
+        "plan_id",
+        "customer_id",
+        "payment_method_code"
+      ]
+    },
+    "Bill::Subscription": {
+      "id": "Bill::Subscription",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID da fatura",
+          "format": "int32"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código externo para referência via API"
+        },
+        "amount": {
+          "$ref": "number",
+          "description": "Valor da fatura"
+        },
+        "installments": {
+          "type": "integer",
+          "description": "Número de parcelas",
+          "format": "int32"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status da fatura",
+          "enum": [
+            "review",
+            "pending",
+            "paid",
+            "canceled",
+            "scheduled"
+          ]
+        },
+        "billing_at": {
+          "type": "string",
+          "description": "Data opcional de emissão da cobrança"
+        },
+        "due_at": {
+          "type": "string",
+          "description": "Data vencimento da fatura"
+        },
+        "url": {
+          "type": "string",
+          "description": "URL para pagamento da fatura"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Data e hora da geração da fatura"
+        },
+        "charges": {
+          "items": {
+            "$ref": "BillCharge"
+          },
+          "type": "array",
+          "description": "Cobranças da fatura"
+        },
+        "payment_profile": {
+          "$ref": "PaymentProfile::Summary",
+          "description": "Perfil de pagamento associada à fatura. Este atributo permancerá nulo caso nenhum perfil de pagamento esteja explicitamente associado à fatura."
+        }
+      },
+      "required": [
+        "id",
+        "amount",
+        "installments",
+        "status",
+        "url",
+        "created_at"
+      ]
+    },
+    "BillCharge": {
+      "id": "BillCharge",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID da cobrança",
+          "format": "int32"
+        },
+        "amount": {
+          "$ref": "number",
+          "description": "Valor da cobrança"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status da cobrança",
+          "enum": [
+            "pending",
+            "paid",
+            "canceled",
+            "processing",
+            "fraud_review"
+          ]
+        },
+        "due_at": {
+          "type": "string",
+          "description": "Data do vencimento da cobrança"
+        },
+        "paid_at": {
+          "type": "string",
+          "description": "Data do pagamento da cobrança, apenas se a cobrança já foi paga"
+        },
+        "installments": {
+          "type": "integer",
+          "description": "Número de parcelas da cobrança. Valores acima de 1 são usados apenas para parcelamento através da administradora do cartão de crédito",
+          "format": "int32"
+        },
+        "attempt_count": {
+          "type": "integer",
+          "description": "Número de tentativas automáticas de cobrança já realizadas",
+          "format": "int32"
+        },
+        "next_attempt": {
+          "type": "integer",
+          "description": "Data da próxima tentativa automática de cobrança",
+          "format": "int32"
+        },
+        "print_url": {
+          "type": "string",
+          "description": "URL para impressão da cobrança. Usado apenas para boletos"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Data e hora da geração da cobrança"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "Data e hora da última atualização da cobrança"
+        },
+        "last_transaction": {
+          "$ref": "Transaction::Summary",
+          "description": "Última transação realizada da cobrança"
+        },
+        "payment_method": {
+          "$ref": "PaymentMethod::Summary",
+          "description": "Método de pagamento da cobrança"
+        }
+      },
+      "required": [
+        "id",
+        "amount",
+        "status",
+        "due_at",
+        "installments",
+        "created_at",
+        "updated_at",
+        "last_transaction",
+        "payment_method"
+      ]
+    },
+    "Transaction::Summary": {
+      "id": "Transaction::Summary",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID da transação",
+          "format": "int32"
+        },
+        "transaction_type": {
+          "type": "string",
+          "description": "Tipo da transação",
+          "enum": [
+            "charge",
+            "refund",
+            "authorization",
+            "capture",
+            "verify",
+            "register",
+            "void",
+            "renew_payment_profile",
+            "pre_authorization",
+            "update"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "description": "Status da transação",
+          "enum": [
+            "processing",
+            "success",
+            "rejected",
+            "failure",
+            "timeout",
+            "waiting",
+            "canceled",
+            "fraud_review"
+          ]
+        },
+        "amount": {
+          "$ref": "number",
+          "description": "Valor da transação"
+        },
+        "installments": {
+          "type": "integer",
+          "description": "Número de parcelas",
+          "format": "int32"
+        },
+        "gateway_message": {
+          "type": "string",
+          "description": "Mensagem de resposta do gateway"
+        },
+        "gateway_response_code": {
+          "type": "string",
+          "description": "Código de resposta do gateway"
+        },
+        "gateway_authorization": {
+          "type": "string",
+          "description": "Código da autorização usado no estorno ou captura. Varia de acordo com o adquirente"
+        },
+        "gateway_transaction_id": {
+          "type": "string",
+          "description": "Código externo de referência do gateway. Para boletos, representa o \"nosso número\""
+        },
+        "gateway_response_fields": {
+          "$ref": "hash",
+          "description": "Atributos de resposta específicos do gateway"
+        },
+        "fraud_detector_score": {
+          "$ref": "number",
+          "description": "Pontuação da análise antifraude entre 0.00 e 1.00. Quanto maior a pontuação, maior o risco de fraude"
+        },
+        "fraud_detector_status": {
+          "type": "string",
+          "description": "Status da análise antifraude",
+          "enum": [
+            "automatic_success",
+            "manual_success",
+            "automatic_rejected",
+            "manual_rejected",
+            "review",
+            "failure"
+          ]
+        },
+        "fraud_detector_id": {
+          "type": "string",
+          "description": "ID da análise antifraude"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Data e hora da transação"
+        },
+        "gateway": {
+          "$ref": "Gateway::Summary",
+          "description": "Gateway usado na transação"
+        },
+        "payment_profile": {
+          "$ref": "PaymentProfile::Summary",
+          "description": "Perfil de pagamento usado na transação"
+        }
+      },
+      "required": [
+        "id",
+        "transaction_type",
+        "status",
+        "amount",
+        "installments",
+        "gateway_message",
+        "gateway_response_code",
+        "gateway_authorization",
+        "gateway_transaction_id",
+        "created_at",
+        "gateway",
+        "payment_profile"
+      ]
+    },
+    "Gateway::Summary": {
+      "id": "Gateway::Summary",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do gateway",
+          "format": "int32"
+        },
+        "connector": {
+          "type": "string",
+          "description": "Conector utilizado no gateway"
+        }
+      },
+      "required": [
+        "id",
+        "connector"
+      ]
+    },
+    "ProductItem::Parameters::CreateSubscription": {
+      "id": "ProductItem::Parameters::CreateSubscription",
+      "properties": {
+        "product_id": {
+          "type": "integer",
+          "description": "ID do produto associado",
+          "format": "int32"
+        },
+        "cycles": {
+          "type": "integer",
+          "description": "Número de ciclos de recorrência onde o produto será aplicado a partir do momento de sua criação. Nulo significa duração ilimitada",
+          "format": "int32"
+        },
+        "quantity": {
+          "type": "integer",
+          "description": "Quantidade do produto incluído na assinatura. Se não for informado, o valor '1' será utilizado",
+          "format": "int32"
+        },
+        "pricing_schema": {
+          "$ref": "PricingSchema::Parameters",
+          "description": "Esquema de precificação do item. Informe apenas se quiser customizar a precificação padrão"
+        },
+        "discounts": {
+          "items": {
+            "$ref": "Discount::Parameters::CreateSubscription"
+          },
+          "type": "array",
+          "description": "Lista de descontos"
+        }
+      },
+      "required": [
+        "product_id"
+      ]
+    },
+    "PricingSchema::Parameters": {
+      "id": "PricingSchema::Parameters",
+      "properties": {
+        "price": {
+          "$ref": "number",
+          "description": "Preço base"
+        },
+        "minimum_price": {
+          "$ref": "number",
+          "description": "Preço mínimo"
+        },
+        "schema_type": {
+          "type": "string",
+          "description": "Tipo de cálculo da precificação",
+          "enum": [
+            "flat",
+            "per_unit",
+            "step_usage",
+            "volume_usage",
+            "tier_usage"
+          ]
+        },
+        "pricing_ranges": {
+          "items": {
+            "$ref": "PricingRange::Parameters"
+          },
+          "type": "array",
+          "description": "Lista de faixas de precificação"
+        }
+      },
+      "required": [
+        "price",
+        "schema_type"
+      ]
+    },
+    "PricingRange::Parameters": {
+      "id": "PricingRange::Parameters",
+      "properties": {
+        "start_quantity": {
+          "type": "integer",
+          "description": "Início da faixa",
+          "format": "int32"
+        },
+        "end_quantity": {
+          "type": "integer",
+          "description": "Término da faixa. Opcional apenas para a última",
+          "format": "int32"
+        },
+        "price": {
+          "$ref": "number",
+          "description": "Preço da unidade ou da faixa, dependendo do tipo escolhido"
+        },
+        "overage_price": {
+          "$ref": "number",
+          "description": "Preço unitário do excedente da faixa"
+        }
+      },
+      "required": [
+        "start_quantity",
+        "price"
+      ]
+    },
+    "Discount::Parameters::CreateSubscription": {
+      "id": "Discount::Parameters::CreateSubscription",
+      "properties": {
+        "discount_type": {
+          "type": "string",
+          "description": "Tipo do desconto",
+          "enum": [
+            "percentage",
+            "amount",
+            "quantity"
+          ]
+        },
+        "percentage": {
+          "$ref": "number",
+          "description": "Valor numérico para porcentagem de 0.01 até 100"
+        },
+        "amount": {
+          "$ref": "number",
+          "description": "Valor para desconto fixo"
+        },
+        "quantity": {
+          "type": "integer",
+          "description": "Número para desconto por quantidade",
+          "format": "int32"
+        },
+        "cycles": {
+          "type": "integer",
+          "description": "Número de ciclos de recorrência onde o desconto será aplicado a partir do momento de sua criação. Nulo significa desconto por tempo indefinido",
+          "format": "int32"
+        }
+      },
+      "required": [
+        "discount_type"
+      ]
+    },
+    "PaymentProfile::Parameters::FindOrCreate": {
+      "id": "PaymentProfile::Parameters::FindOrCreate",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do perfil de pagamento existente",
+          "format": "int32"
+        },
+        "holder_name": {
+          "type": "string",
+          "description": "Nome do titular/portador do perfil de pagamento"
+        },
+        "registry_code": {
+          "type": "string",
+          "description": "CPF ou CNPJ do titular/portador"
+        },
+        "bank_branch": {
+          "type": "string",
+          "description": "Agência da conta bancária"
+        },
+        "bank_account": {
+          "type": "string",
+          "description": "Número da conta bancária"
+        },
+        "card_expiration": {
+          "type": "string",
+          "description": "Validade do cartão de crédito no formato MM/AA"
+        },
+        "card_number": {
+          "type": "string",
+          "description": "Número completo do cartão de crédito"
+        },
+        "card_cvv": {
+          "type": "string",
+          "description": "Código de segurança do cartão de crédito com 3 ou 4 dígitos"
+        },
+        "payment_method_code": {
+          "type": "string",
+          "description": "Código do método de pagamento"
+        },
+        "payment_company_code": {
+          "type": "string",
+          "description": "Código do banco ou bandeira"
+        },
+        "gateway_token": {
+          "type": "string",
+          "description": "Token externo"
+        }
+      }
+    },
+    "Subscription::Parameters::Update": {
+      "id": "Subscription::Parameters::Update",
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Código externo para referência via API"
+        },
+        "payment_method_code": {
+          "type": "string",
+          "description": "Código do método de pagamento"
+        },
+        "installments": {
+          "type": "integer",
+          "description": "Parcelamento da cobrança. Deve ser informado apenas se você desejar sobrescrever a configuração herdada do plano",
+          "format": "int32"
+        },
+        "billing_trigger_type": {
+          "type": "string",
+          "description": "Referência para data de geração da cobrança",
+          "enum": [
+            "beginning_of_period",
+            "end_of_period",
+            "day_of_month"
+          ]
+        },
+        "billing_trigger_day": {
+          "type": "integer",
+          "description": "Dia para geração da cobrança.",
+          "format": "int32"
+        },
+        "metadata": {
+          "$ref": "metadata",
+          "description": "Metadados da assinatura"
+        },
+        "payment_profile": {
+          "$ref": "PaymentProfile::Parameters::FindOrCreate",
+          "description": "Perfil de pagamento associado à assinatura. Se não informado, o perfil de pagamento mais recente será utilizado (recomendável)"
+        },
+        "invoice_split": {
+          "type": "boolean",
+          "description": "Nota fiscal fracionada. Indica se uma nota fiscal será emitida de acordo com a periodicidade do plano (`true`). Deve ser informado apenas se você desejar sobrescrever a configuração herdada do plano"
+        }
+      },
+      "required": [
+        "payment_method_code"
+      ]
+    }
+  }
+}
