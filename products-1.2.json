@@ -1,0 +1,529 @@
+{
+  "apiVersion": "v1",
+  "swaggerVersion": "1.2",
+  "resourcePath": "/products",
+  "produces": [
+    "application/json; charset=UTF-8"
+  ],
+  "apis": [
+    {
+      "path": "/v1/products",
+      "operations": [
+        {
+          "notes": "<p>Utilize este método para listar os produtos associados à sua conta na Vindi. Leia a documentação sobre <a href=\"http://atendimento.vindi.com.br/hc/pt-br/articles/203020644#pagination\">paginação</a> e <a href=\"http://atendimento.vindi.com.br/hc/pt-br/articles/204163150\">filtros de busca</a>.</p>\n\n<h4 id=\"atributos-para-busca\">Atributos para busca</h4>\n<p><code>id</code>, <code>name</code>, <code>code</code>, <code>status</code>, <code>invoice</code>, <code>unit</code>, <code>pricing_schema_id</code>, <code>created_at</code>, <code>updated_at</code>, <code>schema_type</code> e <code>price</code>.</p>\n",
+          "summary": "Retorna uma lista de produtos.",
+          "nickname": "GET--version-products---format-",
+          "method": "GET",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "page",
+              "description": "<p>Page of results to fetch.</p>\n",
+              "type": "integer",
+              "required": false,
+              "allowMultiple": false,
+              "format": "int32",
+              "defaultValue": 1
+            },
+            {
+              "paramType": "query",
+              "name": "per_page",
+              "description": "<p>Number of results to return per page.</p>\n",
+              "type": "integer",
+              "required": false,
+              "allowMultiple": false,
+              "format": "int32"
+            },
+            {
+              "paramType": "query",
+              "name": "query",
+              "description": "<p>Filtro para busca</p>\n",
+              "type": "string",
+              "required": false,
+              "allowMultiple": false
+            },
+            {
+              "paramType": "query",
+              "name": "sort_by",
+              "description": "<p>Atributo opcional para ordenação</p>\n",
+              "type": "string",
+              "required": false,
+              "allowMultiple": false,
+              "defaultValue": "created_at",
+              "enum": [
+                "id",
+                "name",
+                "code",
+                "status",
+                "invoice",
+                "unit",
+                "pricing_schema_id",
+                "created_at",
+                "updated_at",
+                "schema_type",
+                "price"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "sort_order",
+              "description": "<p>Sentido opcional para ordenação</p>\n",
+              "type": "string",
+              "required": false,
+              "allowMultiple": false,
+              "defaultValue": "asc",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          ],
+          "type": "Product",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Consulta realizada com sucesso."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        },
+        {
+          "notes": "<p>Verifique documentação dos atributos no método <code>GET products/{id}</code>.</p>\n",
+          "summary": "Cadastra um novo produto.",
+          "nickname": "POST--version-products---format-",
+          "method": "POST",
+          "parameters": [
+            {
+              "paramType": "body",
+              "name": "body",
+              "description": "<p>JSON com atributos do novo produto.</p>\n",
+              "type": "Product::Parameters::Create",
+              "required": false,
+              "allowMultiple": false
+            }
+          ],
+          "type": "Product",
+          "responseMessages": [
+            {
+              "code": 201,
+              "message": "Produto cadastrado com sucesso."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/v1/products/{id}",
+      "operations": [
+        {
+          "notes": "<p>Produtos definem os itens associados a uma assinatura ou fatura.</p>\n\n<h4 id=\"precificao\">Precificação</h4>\n<p>A plataforma Vindi suporta vários tipos diferentes de cálculos de precificação para os produtos. Consulte este <a href=\"http://atendimento.vindi.com.br/hc/pt-br/articles/203303380\">artigo</a> para mais informações sobre os métodos de cálculo.</p>\n",
+          "summary": "Retorna um produto específico através do ID.",
+          "nickname": "GET--version-products--id---format-",
+          "method": "GET",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID do produto que deverá ser retornado.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            }
+          ],
+          "type": "Product",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Ok. Produto encontrado."
+            },
+            {
+              "code": 404,
+              "message": "Produto não encontrado."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        },
+        {
+          "notes": "<p>Verifique documentação dos atributos no método <code>GET products/{id}</code>.</p>\n",
+          "summary": "Atualiza um produto existente.",
+          "nickname": "PUT--version-products--id---format-",
+          "method": "PUT",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID do produto que deverá ser atualizado.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            },
+            {
+              "paramType": "body",
+              "name": "body",
+              "description": "<p>JSON com novos atributos do produto.</p>\n",
+              "type": "Product::Parameters::Update",
+              "required": false,
+              "allowMultiple": false
+            }
+          ],
+          "type": "Product",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Produto atualizado com sucesso."
+            },
+            {
+              "code": 404,
+              "message": "Produto não encontrado."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "basePath": "https://app.vindi.com.br/api",
+  "models": {
+    "Product": {
+      "id": "Product",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do produto",
+          "format": "int32"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome do produto"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código externo do produto"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Texto para descrever uma unidade do produto. Apenas para quantidade variável"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status do produto",
+          "enum": [
+            "active",
+            "inactive",
+            "deleted"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "description": "Descrição interna do produto"
+        },
+        "invoice": {
+          "type": "string",
+          "description": "Indica se este produto será incluído na emissão de notas fiscais. Se não informado, o valor `always` será utilizado",
+          "enum": [
+            "always",
+            "never"
+          ]
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Data e hora do cadastro do produto"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "Data e hora da última atualização do produto"
+        },
+        "pricing_schema": {
+          "$ref": "PricingSchema",
+          "description": "Esquema de precificação atual do produto"
+        },
+        "metadata": {
+          "$ref": "metadata",
+          "description": "Metadados do produto"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "status",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "PricingSchema": {
+      "id": "PricingSchema",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID do esquema de precificação"
+        },
+        "short_format": {
+          "type": "string",
+          "description": "Descrição da precificação gerada automaticamente"
+        },
+        "price": {
+          "$ref": "number",
+          "description": "Preço base"
+        },
+        "minimum_price": {
+          "$ref": "number",
+          "description": "Preço mínimo"
+        },
+        "schema_type": {
+          "type": "string",
+          "description": "Tipo de cálculo da precificação",
+          "enum": [
+            "flat",
+            "per_unit",
+            "step_usage",
+            "volume_usage",
+            "tier_usage"
+          ]
+        },
+        "pricing_ranges": {
+          "items": {
+            "$ref": "PricingRange"
+          },
+          "type": "array",
+          "description": "Lista de faixas de precificação"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Data e hora do cadastro do esquema de precificação"
+        }
+      },
+      "required": [
+        "id",
+        "short_format",
+        "price",
+        "schema_type",
+        "created_at"
+      ]
+    },
+    "PricingRange": {
+      "id": "PricingRange",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID do faixa de precificação"
+        },
+        "start_quantity": {
+          "type": "integer",
+          "description": "Início da faixa",
+          "format": "int32"
+        },
+        "end_quantity": {
+          "type": "integer",
+          "description": "Término da faixa. Opcional apenas para a última",
+          "format": "int32"
+        },
+        "price": {
+          "$ref": "number",
+          "description": "Preço da unidade ou da faixa, dependendo do tipo escolhido"
+        },
+        "overage_price": {
+          "$ref": "number",
+          "description": "Preço unitário do excedente da faixa"
+        }
+      },
+      "required": [
+        "id",
+        "start_quantity",
+        "price"
+      ]
+    },
+    "Product::Parameters::Create": {
+      "id": "Product::Parameters::Create",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Nome do produto"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código externo do produto"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Texto para descrever uma unidade do produto. Apenas para quantidade variável"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status do produto",
+          "enum": [
+            "active",
+            "inactive",
+            "deleted"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "description": "Descrição interna do produto"
+        },
+        "invoice": {
+          "type": "string",
+          "description": "Indica se este produto será incluído na emissão de notas fiscais. Se não informado, o valor `always` será utilizado",
+          "enum": [
+            "always",
+            "never"
+          ]
+        },
+        "pricing_schema": {
+          "$ref": "PricingSchema::Parameters",
+          "description": "Esquema de precificação do produto"
+        },
+        "metadata": {
+          "$ref": "metadata",
+          "description": "Metadados do produto"
+        }
+      },
+      "required": [
+        "name",
+        "status"
+      ]
+    },
+    "PricingSchema::Parameters": {
+      "id": "PricingSchema::Parameters",
+      "properties": {
+        "price": {
+          "$ref": "number",
+          "description": "Preço base"
+        },
+        "minimum_price": {
+          "$ref": "number",
+          "description": "Preço mínimo"
+        },
+        "schema_type": {
+          "type": "string",
+          "description": "Tipo de cálculo da precificação",
+          "enum": [
+            "flat",
+            "per_unit",
+            "step_usage",
+            "volume_usage",
+            "tier_usage"
+          ]
+        },
+        "pricing_ranges": {
+          "items": {
+            "$ref": "PricingRange::Parameters"
+          },
+          "type": "array",
+          "description": "Lista de faixas de precificação"
+        }
+      },
+      "required": [
+        "price",
+        "schema_type"
+      ]
+    },
+    "PricingRange::Parameters": {
+      "id": "PricingRange::Parameters",
+      "properties": {
+        "start_quantity": {
+          "type": "integer",
+          "description": "Início da faixa",
+          "format": "int32"
+        },
+        "end_quantity": {
+          "type": "integer",
+          "description": "Término da faixa. Opcional apenas para a última",
+          "format": "int32"
+        },
+        "price": {
+          "$ref": "number",
+          "description": "Preço da unidade ou da faixa, dependendo do tipo escolhido"
+        },
+        "overage_price": {
+          "$ref": "number",
+          "description": "Preço unitário do excedente da faixa"
+        }
+      },
+      "required": [
+        "start_quantity",
+        "price"
+      ]
+    },
+    "Product::Parameters::Update": {
+      "id": "Product::Parameters::Update",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Nome do produto"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código externo do produto"
+        },
+        "unit": {
+          "type": "string",
+          "description": "Texto para descrever uma unidade do produto. Apenas para quantidade variável"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status do produto",
+          "enum": [
+            "active",
+            "inactive",
+            "deleted"
+          ]
+        },
+        "description": {
+          "type": "string",
+          "description": "Descrição interna do produto"
+        },
+        "invoice": {
+          "type": "string",
+          "description": "Indica se este produto será incluído na emissão de notas fiscais. Se não informado, o valor `always` será utilizado",
+          "enum": [
+            "always",
+            "never"
+          ]
+        },
+        "pricing_schema": {
+          "$ref": "PricingSchema::Parameters",
+          "description": "Esquema de precificação do produto avulso"
+        },
+        "metadata": {
+          "$ref": "metadata",
+          "description": "Metadados do produto"
+        }
+      },
+      "required": [
+        "name",
+        "status"
+      ]
+    }
+  }
+}
