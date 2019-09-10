@@ -1,0 +1,526 @@
+{
+  "apiVersion": "v1",
+  "swaggerVersion": "1.2",
+  "resourcePath": "/periods",
+  "produces": [
+    "application/json; charset=UTF-8"
+  ],
+  "apis": [
+    {
+      "path": "/v1/periods",
+      "operations": [
+        {
+          "notes": "<p>Utilize este método para listar os períodos associadas à sua conta na Vindi. Leia a documentação sobre <a href=\"http://atendimento.vindi.com.br/hc/pt-br/articles/203020644#pagination\">paginação</a> e <a href=\"http://atendimento.vindi.com.br/hc/pt-br/articles/204163150\">filtros de busca</a>.</p>\n\n<h4 id=\"atributos-para-busca\">Atributos para busca</h4>\n<p><code>id</code>, <code>billing_at</code>, <code>subscription_id</code>, <code>start_at</code>, <code>end_at</code>, <code>cycle</code>, <code>duration</code>, <code>created_at</code> e <code>updated_at</code>.</p>\n",
+          "summary": "Retorna uma lista de períodos.",
+          "nickname": "GET--version-periods---format-",
+          "method": "GET",
+          "parameters": [
+            {
+              "paramType": "query",
+              "name": "page",
+              "description": "<p>Page of results to fetch.</p>\n",
+              "type": "integer",
+              "required": false,
+              "allowMultiple": false,
+              "format": "int32",
+              "defaultValue": 1
+            },
+            {
+              "paramType": "query",
+              "name": "per_page",
+              "description": "<p>Number of results to return per page.</p>\n",
+              "type": "integer",
+              "required": false,
+              "allowMultiple": false,
+              "format": "int32"
+            },
+            {
+              "paramType": "query",
+              "name": "query",
+              "description": "<p>Filtro para busca</p>\n",
+              "type": "string",
+              "required": false,
+              "allowMultiple": false
+            },
+            {
+              "paramType": "query",
+              "name": "sort_by",
+              "description": "<p>Atributo opcional para ordenação</p>\n",
+              "type": "string",
+              "required": false,
+              "allowMultiple": false,
+              "defaultValue": "created_at",
+              "enum": [
+                "id",
+                "billing_at",
+                "subscription_id",
+                "start_at",
+                "end_at",
+                "cycle",
+                "duration",
+                "created_at",
+                "updated_at"
+              ]
+            },
+            {
+              "paramType": "query",
+              "name": "sort_order",
+              "description": "<p>Sentido opcional para ordenação</p>\n",
+              "type": "string",
+              "required": false,
+              "allowMultiple": false,
+              "defaultValue": "asc",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          ],
+          "type": "Period::List",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Consulta realizada com sucesso."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/v1/periods/{id}",
+      "operations": [
+        {
+          "notes": "<p>Uma assinatura deve possuir obrigatoriamente um ou mais períodos, que são gerados automaticamente conforme a configuração de cobrança e periodicidade da assinatura. Em uma assinatura baseada em um plano mensal, cada período terá a duração de aproximadamente 30 dias.</p>\n\n<h4 id=\"registros-de-utilizao\">Registros de utilização</h4>\n<p>Todo período deverá possuir um ou mais registros de utilização. A fatura do período será gerada a partir destes registros de utilização.</p>\n\n<p>Para produtos configurados com preço fixo ou preço por quantidade, a plataforma irá criar automaticamente um registro de utilização conforme a quantidade indicada na assinatura. Para produtos com preços baseados no volume, nenhum registro será criado automaticamente e o período aguardará obrigatoriamente a informação do registro de utilização. A inclusão do registro pode ser feita através do painel de administração ou pela API.</p>\n\n<h4 id=\"fatura\">Fatura</h4>\n<p>Normalmente um período possuirá uma única fatura que será gerada automaticamente na data <code>billing_at</code>, porém em casos especiais um período poderá possuir mais de uma fatura.</p>\n",
+          "summary": "Retorna um período específico através do ID.",
+          "nickname": "GET--version-periods--id---format-",
+          "method": "GET",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID do período que deverá ser retornado.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            }
+          ],
+          "type": "Period",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Ok. Período encontrado."
+            },
+            {
+              "code": 404,
+              "message": "Período não encontrado."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        },
+        {
+          "notes": "<p>Atualiza um período existente.</p>\n\n<h4 id=\"data-de-trmino\">Data de término</h4>\n<p>A duração de um período pode ser atualizada modificando sua data de término. Esta atualização é possível apenas no último período de uma assinatura. Períodos subsequentes desta assinatura serão calculados conforme a nova data, respeitando o intervalo original.</p>\n\n<h4 id=\"data-de-cobrana\">Data de cobrança</h4>\n<p>Através deste método também é possível atualizar a data de cobrança de um período, porém a plataforma não irá realizar cobranças retroativas automaticamente. Caso a atualização seja para uma data igual ou anterior ao dia de hoje, será necessário forçar a cobrança usando <code>POST /periods/{id}/bill</code>.</p>\n",
+          "summary": "Atualiza um período existente.",
+          "nickname": "PUT--version-periods--id---format-",
+          "method": "PUT",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID do período.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            },
+            {
+              "paramType": "body",
+              "name": "body",
+              "description": "<p>JSON com os novos atributos do período.</p>\n",
+              "type": "Period::Parameters::Update",
+              "required": false,
+              "allowMultiple": false
+            }
+          ],
+          "type": "Period",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Período atualizado com sucesso."
+            },
+            {
+              "code": 404,
+              "message": "Período não encontrado."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/v1/periods/{id}/bill",
+      "operations": [
+        {
+          "notes": "<p>Há 2 casos onde pode ser necessário gerar uma nova fatura manualmente a partir de um período:</p>\n\n<ol>\n  <li>Gerar uma fatura que não foi emitida automaticamente por falta de informações de registro de uso;</li>\n  <li>Gerar uma fatura adicional para um período.</li>\n</ol>\n\n<p>A plataforma Vindi tenta gerar automaticamente uma nova fatura na data especificada no atributo <code>billing_at</code> do período utilizando todos os registros de utilização não faturados até então. A nova fatura é gerada apenas se todos os itens ativos da assinatura possuírem ao menos um registro de utilização, mesmo que algum deles possua o campo <code>quantity</code> explicitamente igual a zero.</p>\n\n<p>Este comportamento é necessário para evitar a emissão de faturas que não receberam registros de utilização, seja por esquecimento do operador do sistema ou por algum tipo de falha na transmissão dessa informação. Para verificar esses períodos que não foram faturados, consulte o relatório “Períodos não faturados” e pesquise pela data da cobrança programada.</p>\n\n<h4 id=\"exemplo\">Exemplo</h4>\n<p>Suponha uma assinatura com a cobrança programada para o último dia do período contendo dois produtos:</p>\n\n<pre><code>Mensalidade: Preço fixo - R$ 100,00\nHoras de suporte: Preço variável por volume - R$ 15,00/hora\n</code></pre>\n<p>O primeiro período será criado com um único registro de utilização com quantidade igual a 1 representando o produto “Mensalidade”. A plataforma espera que a quantidade de “Horas de suporte” seja informada via API ou pelo operador do sistema. Se isto não acontecer até a data de cobrança do período, a plataforma <strong>não irá gerar a fatura automaticamente</strong>. Neste caso espera-se que a fatura seja gerada a partir do painel de administração ou deste método via API.</p>\n\n<p>Como mencionado acima, também é possível gerar uma fatura adicional incluindo registros de uso que ainda não foram faturados. Isso pode acontecer quando você deseja incluir alguma cobrança adicional no período e faz questão de manter a referência do período.</p>\n",
+          "summary": "Emite uma nova fatura baseada em um período.",
+          "nickname": "POST--version-periods--id-bill---format-",
+          "method": "POST",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID do período onde a fatura será gerada.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            }
+          ],
+          "type": "Period",
+          "responseMessages": [
+            {
+              "code": 201,
+              "message": "Fatura gerada com sucesso."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "basePath": "https://app.vindi.com.br/api",
+  "models": {
+    "Period::List": {
+      "id": "Period::List",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do período",
+          "format": "int32"
+        },
+        "billing_at": {
+          "type": "string",
+          "description": "Data para geração automática da cobrança do período"
+        },
+        "cycle": {
+          "type": "integer",
+          "description": "Ciclo do período",
+          "format": "int32"
+        },
+        "start_at": {
+          "type": "string",
+          "description": "Data e hora do início do período"
+        },
+        "end_at": {
+          "type": "string",
+          "description": "Data e hora do término do período"
+        },
+        "duration": {
+          "type": "integer",
+          "description": "Duração do período em número de segundos",
+          "format": "int32"
+        },
+        "subscription": {
+          "$ref": "Subscription::Summary",
+          "description": "Assinatura relacionada ao período"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Data e hora da geração do período"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "Data e hora da última atualização do período"
+        }
+      },
+      "required": [
+        "id",
+        "cycle",
+        "start_at",
+        "end_at",
+        "duration",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "Subscription::Summary": {
+      "id": "Subscription::Summary",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID da assinatura",
+          "format": "int32"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código externo para referência via API"
+        },
+        "plan": {
+          "$ref": "Plan::Summary",
+          "description": "Plano da assinatura"
+        },
+        "customer": {
+          "$ref": "Customer::Summary",
+          "description": "Cliente da assinatura"
+        }
+      },
+      "required": [
+        "id",
+        "plan",
+        "customer"
+      ]
+    },
+    "Plan::Summary": {
+      "id": "Plan::Summary",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do plano",
+          "format": "int32"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome do plano"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código externo do plano"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "Customer::Summary": {
+      "id": "Customer::Summary",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do cliente",
+          "format": "int32"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome do cliente"
+        },
+        "email": {
+          "type": "string",
+          "description": "E-mail do cliente"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código opcional para referência via API"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "Period": {
+      "id": "Period",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do período",
+          "format": "int32"
+        },
+        "billing_at": {
+          "type": "string",
+          "description": "Data para geração automática da cobrança do período"
+        },
+        "cycle": {
+          "type": "integer",
+          "description": "Ciclo do período",
+          "format": "int32"
+        },
+        "start_at": {
+          "type": "string",
+          "description": "Data e hora do início do período"
+        },
+        "end_at": {
+          "type": "string",
+          "description": "Data e hora do término do período"
+        },
+        "duration": {
+          "type": "integer",
+          "description": "Duração do período em número de segundos",
+          "format": "int32"
+        },
+        "customer": {
+          "$ref": "Customer::Summary",
+          "description": "Cliente do período"
+        },
+        "subscription": {
+          "$ref": "Subscription::Summary",
+          "description": "Assinatura relacionada ao período"
+        },
+        "usages": {
+          "items": {
+            "$ref": "Usage"
+          },
+          "type": "array",
+          "description": "Lista de registros de utilização no período"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Data e hora da geração do período"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "Data e hora da última atualização do período"
+        }
+      },
+      "required": [
+        "id",
+        "cycle",
+        "start_at",
+        "end_at",
+        "duration",
+        "created_at",
+        "updated_at"
+      ]
+    },
+    "Usage": {
+      "id": "Usage",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do registro de utilização",
+          "format": "int32"
+        },
+        "quantity": {
+          "type": "integer",
+          "description": "Quantidade informada no registro de utilização",
+          "format": "int32"
+        },
+        "description": {
+          "type": "string",
+          "description": "Descrição opcional"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Data e hora da geração do registro de utilização"
+        },
+        "metadata": {
+          "$ref": "metadata",
+          "description": "Metadados do registro de utilização"
+        },
+        "product_item": {
+          "$ref": "ProductItem::Summary",
+          "description": "Item da assinatura relacionado ao registro de utilização"
+        },
+        "bill": {
+          "$ref": "Bill::Summary",
+          "description": "Fatura relacionada ao registro de utilização"
+        }
+      },
+      "required": [
+        "id",
+        "quantity",
+        "created_at",
+        "product_item"
+      ]
+    },
+    "ProductItem::Summary": {
+      "id": "ProductItem::Summary",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do item",
+          "format": "int32"
+        },
+        "product": {
+          "$ref": "Product::Summary",
+          "description": "Produto associado ao plano"
+        }
+      },
+      "required": [
+        "id",
+        "product"
+      ]
+    },
+    "Product::Summary": {
+      "id": "Product::Summary",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do produto",
+          "format": "int32"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome do produto"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código externo do produto"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "Bill::Summary": {
+      "id": "Bill::Summary",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID da fatura",
+          "format": "int32"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código externo para referência via API"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "Period::Parameters::Update": {
+      "id": "Period::Parameters::Update",
+      "properties": {
+        "billing_at": {
+          "type": "string",
+          "description": "Data para geração automática da cobrança do período"
+        },
+        "end_at": {
+          "type": "string",
+          "description": "Data do término do período"
+        }
+      }
+    }
+  }
+}

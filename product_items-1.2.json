@@ -1,0 +1,505 @@
+{
+  "apiVersion": "v1",
+  "swaggerVersion": "1.2",
+  "resourcePath": "/product_items",
+  "produces": [
+    "application/json; charset=UTF-8"
+  ],
+  "apis": [
+    {
+      "path": "/v1/product_items/{id}",
+      "operations": [
+        {
+          "notes": "<p>Uma assinatura (<code>subscription</code>) é composta de um ou mais <code>product_items</code>, que representam os itens da assinatura que serão usados para criar as faturas (<code>bill</code>) de cada período (<code>period</code>).</p>\n",
+          "summary": "Retorna um item da assinatura específico através do ID.",
+          "nickname": "GET--version-product_items--id---format-",
+          "method": "GET",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID do produto que deverá ser retornado.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            }
+          ],
+          "type": "ProductItem",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Ok. Item encontrado."
+            },
+            {
+              "code": 404,
+              "message": "Item não encontrado."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        },
+        {
+          "notes": "<p>É possível atualizar um item em uma assinatura existente, porém isso não causará nenhum reflexo imediato nas faturas já emitidas. Alterações em um item serão aplicadas apenas na próxima fatura gerada, porém de qualquer forma é possível cancelar e reemitir uma fatura já gerada.</p>\n\n<h4 id=\"precificao\">Precificação</h4>\n<p>Informe o parâmetro <code>pricing_schema</code> apenas se quiser alterar a precificação atual do item. Consulte este <a href=\"http://atendimento.vindi.com.br/hc/pt-br/articles/203303380\">artigo</a> para mais informações sobre o cálculo da precificação.</p>\n",
+          "summary": "Atualiza um item existente.",
+          "nickname": "PUT--version-product_items--id---format-",
+          "method": "PUT",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID do item que deverá ser atualizado.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            },
+            {
+              "paramType": "body",
+              "name": "body",
+              "description": "<p>JSON com novos atributos do item.</p>\n",
+              "type": "ProductItem::Parameters::Update",
+              "required": false,
+              "allowMultiple": false
+            }
+          ],
+          "type": "ProductItem",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Item atualizado com sucesso."
+            },
+            {
+              "code": 404,
+              "message": "Item não encontrado."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        },
+        {
+          "notes": "",
+          "summary": "Remove um item através do ID.",
+          "nickname": "DELETE--version-product_items--id---format-",
+          "method": "DELETE",
+          "parameters": [
+            {
+              "paramType": "path",
+              "name": "id",
+              "description": "<p>ID do item que deverá ser removido.</p>\n",
+              "type": "integer",
+              "required": true,
+              "allowMultiple": false,
+              "format": "int32"
+            }
+          ],
+          "type": "ProductItem",
+          "responseMessages": [
+            {
+              "code": 200,
+              "message": "Item removido com sucesso."
+            },
+            {
+              "code": 404,
+              "message": "Item não encontrado."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "/v1/product_items",
+      "operations": [
+        {
+          "notes": "<p>Novos itens serão aplicados apenas em novas faturas. Se desejar incluir o novo item em uma fatura existente você deverá cancelar a fatura em questão e efetuar a reemissão.</p>\n\n<h4 id=\"precificao\">Precificação</h4>\n<p>Informe o parâmetro <code>pricing_schema</code> apenas se quiser customizar a precificação para o novo item. Consulte este <a href=\"http://atendimento.vindi.com.br/hc/pt-br/articles/203303380\">artigo</a> para mais informações sobre o cálculo da precificação.</p>\n",
+          "summary": "Cadastra um novo item em uma assinatura existente.",
+          "nickname": "POST--version-product_items---format-",
+          "method": "POST",
+          "parameters": [
+            {
+              "paramType": "body",
+              "name": "body",
+              "description": "<p>JSON com atributos do novo item.</p>\n",
+              "type": "ProductItem::Parameters::Create",
+              "required": false,
+              "allowMultiple": false
+            }
+          ],
+          "type": "ProductItem",
+          "responseMessages": [
+            {
+              "code": 201,
+              "message": "Item cadastrado com sucesso."
+            },
+            {
+              "code": 422,
+              "message": "Parâmetros inválidos. Verificar erro na resposta."
+            },
+            {
+              "code": 400,
+              "message": "Erro de sintaxe JSON no corpo do request."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "basePath": "https://app.vindi.com.br/api",
+  "models": {
+    "ProductItem": {
+      "id": "ProductItem",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do item",
+          "format": "int32"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status do item",
+          "enum": [
+            "active",
+            "inactive",
+            "deleted"
+          ]
+        },
+        "uses": {
+          "type": "integer",
+          "description": "Número de ciclos de recorrência que utilizaram o produto.",
+          "format": "int32"
+        },
+        "cycles": {
+          "type": "integer",
+          "description": "Número de ciclos de recorrência onde o produto será aplicado a partir do momento de sua criação. Nulo significa duração ilimitada",
+          "format": "int32"
+        },
+        "quantity": {
+          "type": "integer",
+          "description": "Quantidade do produto incluído na assinatura. Se não for informado, o valor '1' será utilizado",
+          "format": "int32"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Data e hora da criação do item"
+        },
+        "updated_at": {
+          "type": "string",
+          "description": "Data e hora da última atualização do item"
+        },
+        "product": {
+          "$ref": "Product::Summary",
+          "description": "Produto associado ao plano"
+        },
+        "pricing_schema": {
+          "$ref": "PricingSchema",
+          "description": "Esquema de precificação atual do item"
+        },
+        "discounts": {
+          "items": {
+            "$ref": "Discount::Summary"
+          },
+          "type": "array",
+          "description": "Lista de descontos ativos. Descontos já aplicados não serão retornados"
+        }
+      },
+      "required": [
+        "id",
+        "status",
+        "created_at",
+        "updated_at",
+        "product"
+      ]
+    },
+    "Product::Summary": {
+      "id": "Product::Summary",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do produto",
+          "format": "int32"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome do produto"
+        },
+        "code": {
+          "type": "string",
+          "description": "Código externo do produto"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "PricingSchema": {
+      "id": "PricingSchema",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID do esquema de precificação"
+        },
+        "short_format": {
+          "type": "string",
+          "description": "Descrição da precificação gerada automaticamente"
+        },
+        "price": {
+          "$ref": "number",
+          "description": "Preço base"
+        },
+        "minimum_price": {
+          "$ref": "number",
+          "description": "Preço mínimo"
+        },
+        "schema_type": {
+          "type": "string",
+          "description": "Tipo de cálculo da precificação",
+          "enum": [
+            "flat",
+            "per_unit",
+            "step_usage",
+            "volume_usage",
+            "tier_usage"
+          ]
+        },
+        "pricing_ranges": {
+          "items": {
+            "$ref": "PricingRange"
+          },
+          "type": "array",
+          "description": "Lista de faixas de precificação"
+        },
+        "created_at": {
+          "type": "string",
+          "description": "Data e hora do cadastro do esquema de precificação"
+        }
+      },
+      "required": [
+        "id",
+        "short_format",
+        "price",
+        "schema_type",
+        "created_at"
+      ]
+    },
+    "PricingRange": {
+      "id": "PricingRange",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID do faixa de precificação"
+        },
+        "start_quantity": {
+          "type": "integer",
+          "description": "Início da faixa",
+          "format": "int32"
+        },
+        "end_quantity": {
+          "type": "integer",
+          "description": "Término da faixa. Opcional apenas para a última",
+          "format": "int32"
+        },
+        "price": {
+          "$ref": "number",
+          "description": "Preço da unidade ou da faixa, dependendo do tipo escolhido"
+        },
+        "overage_price": {
+          "$ref": "number",
+          "description": "Preço unitário do excedente da faixa"
+        }
+      },
+      "required": [
+        "id",
+        "start_quantity",
+        "price"
+      ]
+    },
+    "Discount::Summary": {
+      "id": "Discount::Summary",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "description": "ID do desconto",
+          "format": "int32"
+        },
+        "discount_type": {
+          "type": "string",
+          "description": "Tipo do desconto",
+          "enum": [
+            "percentage",
+            "amount",
+            "quantity"
+          ]
+        },
+        "percentage": {
+          "$ref": "number",
+          "description": "Valor numérico para porcentagem de 0.01 até 100"
+        },
+        "amount": {
+          "$ref": "number",
+          "description": "Valor para desconto fixo"
+        },
+        "quantity": {
+          "type": "integer",
+          "description": "Número para desconto por quantidade",
+          "format": "int32"
+        },
+        "cycles": {
+          "type": "integer",
+          "description": "Número de ciclos de recorrência onde o desconto será aplicado a partir do momento de sua criação. Nulo significa desconto por tempo indefinido",
+          "format": "int32"
+        }
+      },
+      "required": [
+        "id",
+        "discount_type"
+      ]
+    },
+    "ProductItem::Parameters::Update": {
+      "id": "ProductItem::Parameters::Update",
+      "properties": {
+        "status": {
+          "type": "string",
+          "description": "Status do item",
+          "enum": [
+            "active",
+            "inactive",
+            "deleted"
+          ]
+        },
+        "cycles": {
+          "type": "integer",
+          "description": "Número de ciclos de recorrência onde o produto será aplicado a partir do momento de sua criação. Nulo significa duração ilimitada",
+          "format": "int32"
+        },
+        "quantity": {
+          "type": "integer",
+          "description": "Quantidade do produto incluído na assinatura. Se não for informado, o valor '1' será utilizado",
+          "format": "int32"
+        },
+        "pricing_schema": {
+          "$ref": "PricingSchema::Parameters",
+          "description": "Esquema de precificação do item. Informe apenas se quiser customizar a precificação padrão"
+        }
+      },
+      "required": [
+        "status"
+      ]
+    },
+    "PricingSchema::Parameters": {
+      "id": "PricingSchema::Parameters",
+      "properties": {
+        "price": {
+          "$ref": "number",
+          "description": "Preço base"
+        },
+        "minimum_price": {
+          "$ref": "number",
+          "description": "Preço mínimo"
+        },
+        "schema_type": {
+          "type": "string",
+          "description": "Tipo de cálculo da precificação",
+          "enum": [
+            "flat",
+            "per_unit",
+            "step_usage",
+            "volume_usage",
+            "tier_usage"
+          ]
+        },
+        "pricing_ranges": {
+          "items": {
+            "$ref": "PricingRange::Parameters"
+          },
+          "type": "array",
+          "description": "Lista de faixas de precificação"
+        }
+      },
+      "required": [
+        "price",
+        "schema_type"
+      ]
+    },
+    "PricingRange::Parameters": {
+      "id": "PricingRange::Parameters",
+      "properties": {
+        "start_quantity": {
+          "type": "integer",
+          "description": "Início da faixa",
+          "format": "int32"
+        },
+        "end_quantity": {
+          "type": "integer",
+          "description": "Término da faixa. Opcional apenas para a última",
+          "format": "int32"
+        },
+        "price": {
+          "$ref": "number",
+          "description": "Preço da unidade ou da faixa, dependendo do tipo escolhido"
+        },
+        "overage_price": {
+          "$ref": "number",
+          "description": "Preço unitário do excedente da faixa"
+        }
+      },
+      "required": [
+        "start_quantity",
+        "price"
+      ]
+    },
+    "ProductItem::Parameters::Create": {
+      "id": "ProductItem::Parameters::Create",
+      "properties": {
+        "product_id": {
+          "type": "integer",
+          "description": "ID do produto associado",
+          "format": "int32"
+        },
+        "subscription_id": {
+          "type": "integer",
+          "description": "ID da assinatura existente",
+          "format": "int32"
+        },
+        "cycles": {
+          "type": "integer",
+          "description": "Número de ciclos de recorrência onde o produto será aplicado a partir do momento de sua criação. Nulo significa duração ilimitada",
+          "format": "int32"
+        },
+        "quantity": {
+          "type": "integer",
+          "description": "Quantidade do produto incluído na assinatura. Se não for informado, o valor '1' será utilizado",
+          "format": "int32"
+        },
+        "pricing_schema": {
+          "$ref": "PricingSchema::Parameters",
+          "description": "Esquema de precificação do item. Informe apenas se quiser customizar a precificação padrão"
+        }
+      },
+      "required": [
+        "product_id",
+        "subscription_id"
+      ]
+    }
+  }
+}
